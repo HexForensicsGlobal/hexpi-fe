@@ -1,38 +1,53 @@
 export interface Organization {
-  id: string;
-  name: string;
-  description?: string;
-  founded?: string;
-  location?: string;
-  website?: string;
-  industry?: string;
+  entry_id: number | null;
+  organization_id: number | null;
+  rcNumber: string | null;
+  approvedName: string | null;
+  objectives: string | null;
+  address: string | null;
+  state: string | null;
+  city: string | null;
+  email: string | null;
+  status: string | null;
+  registrationDate: string | null;
 }
 
 export interface Affiliate {
-  id: string;
-  name: string;
-  role?: string;
-  organization?: string;
-  email?: string;
-  phone?: string;
-  location?: string;
+  entry_id: number | null;
+  organization_id: number | null;
+  surname: string | null;
+  firstname: string | null;
+  otherName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  occupation: string | null;
+  city: string | null;
+  state: string | null;
+  nationality: string | null;
 }
 
 export interface SearchParams {
-  query: string;
-  page?: number;
+  q: string;
+  search_type?: 'organizations' | 'affiliates' | 'both';
+  offset?: number;
   limit?: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
+export interface SearchResponse {
+  query: string;
+  query_time_ms: number;
+  offset: number;
   limit: number;
-  totalPages: number;
+  total_matched_organizations: number;
+  total_matched_affiliates: number;
+  total_in_response: number;
+  organizations_in_response: number;
+  affiliates_in_response: number;
+  organizations: Organization[];
+  affiliates: Affiliate[];
 }
 
 export interface HealthResponse {
   status: string;
-  timestamp: string;
+  timestamp?: string;
 }

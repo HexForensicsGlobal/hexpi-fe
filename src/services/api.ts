@@ -1,17 +1,14 @@
 import axios from 'axios';
 import type {
-  Organization,
-  Affiliate,
   SearchParams,
-  PaginatedResponse,
+  SearchResponse,
   HealthResponse,
 } from '../types';
 
 // API Service Interface
 export interface IApiService {
   health(): Promise<HealthResponse>;
-  searchOrganizations(params: SearchParams): Promise<PaginatedResponse<Organization>>;
-  searchAffiliates(params: SearchParams): Promise<PaginatedResponse<Affiliate>>;
+  keywordSearch(params: SearchParams): Promise<SearchResponse>;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -54,35 +51,15 @@ class ApiService implements IApiService {
     return response.data;
   }
 
-  async searchOrganizations(
-    params: SearchParams
-  ): Promise<PaginatedResponse<Organization>> {
-    const response = await this.client.get<PaginatedResponse<Organization>>(
-      '/search/organizations',
-      {
-        params: {
-          query: params.query,
-          page: params.page || 1,
-          limit: params.limit || 10,
-        },
-      }
-    );
-    return response.data;
-  }
-
-  async searchAffiliates(
-    params: SearchParams
-  ): Promise<PaginatedResponse<Affiliate>> {
-    const response = await this.client.get<PaginatedResponse<Affiliate>>(
-      '/search/affiliates',
-      {
-        params: {
-          query: params.query,
-          page: params.page || 1,
-          limit: params.limit || 10,
-        },
-      }
-    );
+  async keywordSearch(params: SearchParams): Promise<SearchResponse> {
+    const response = await this.client.get<SearchResponse>('/api/v1/search/keyword', {
+      params: {
+        q: params.q,
+        search_type: params.search_type || 'both',
+        offset: params.offset || 0,
+        limit: params.limit || 100,
+      },
+    });
     return response.data;
   }
 }
