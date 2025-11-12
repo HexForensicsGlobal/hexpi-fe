@@ -3,7 +3,7 @@ import type {
   SearchParams,
   SearchResponse,
   HealthResponse,
-} from '../types';
+} from './types';
 
 // API Service Interface
 export interface IApiService {
