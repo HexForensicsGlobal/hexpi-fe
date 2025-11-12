@@ -23,26 +23,26 @@ const Index = () => {
             <div className="text-center mb-12">
               {/* decoration */}
               <div className="inline-block mb-2">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                {/* <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" /> */}
               </div>
 
               {/* Greeting */}
-              <h1 className="text-5xl font-semibold text-foreground mb-4">
+              {/* <h1 className="text-5xl font-semibold text-foreground mb-4">
                 Good morning
               </h1>
               <p className="text-3xl text-foreground/90">
                 What can I help you with today?
-              </p>
+              </p> */}
             </div>
 
             <SearchBar />
-            <QuickActions />
+            {/* <QuickActions /> */}
             {/* <InfoCards /> */}
 
             <div className="mt-12 text-center space-y-2">
-              <p className="text-xs text-muted-foreground">
+              {/* <p className="text-xs text-muted-foreground">
               Hex PIP uses AI and may make mistakes. Please verify important information.
-              </p>
+              </p> */}
               <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} Hex Forensics. All rights reserved.
               </p>

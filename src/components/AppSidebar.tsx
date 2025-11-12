@@ -21,17 +21,17 @@ export function AppSidebar() {
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-4">
             <img
-              src="/placeholder.svg"
+              src="/favicon.ico"
               alt="Hex PIP logo"
               className="w-8 h-8 rounded-lg object-contain"
             />
             <div>
-              <h2 className="text-sm font-semibold text-sidebar-foreground">Hex PIP</h2>
+              <h2 className="text-sm font-semibold text-sidebar-foreground">HEX PIP</h2>
             </div>
           </div>
         </div>
 
-        <SidebarGroup>
+        <SidebarGroup  style={{ display: "none" }}>
           <SidebarGroupLabel className="text-xs text-muted-foreground mb-2">
             Labs
           </SidebarGroupLabel>
@@ -47,7 +47,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-6">
+        <SidebarGroup className="mt-6" style={{ display: "none" }}>
           <SidebarGroupLabel className="text-xs text-muted-foreground mb-2">
             Check out what's new
           </SidebarGroupLabel>
