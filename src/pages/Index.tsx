@@ -4,20 +4,40 @@ import { SearchBar } from "@/components/SearchBar";
 import { QuickActions } from "@/components/QuickActions";
 import { InfoCards } from "@/components/InfoCards";
 import { DecorativeElements } from "@/components/DecorativeElements";
-import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Menu, Settings, Home } from "lucide-react";
 
 const Index = () => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-gradient-start via-background to-gradient-end relative overflow-hidden">
+      <div className="flex min-h-screen w-full relative overflow-hidden" style={{ backgroundImage: "url('/snow_bg.jpeg')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+        
         <AppSidebar />
         
-        <main className="flex-1 relative">
-          <header className="h-14 flex items-center px-4 border-b border-border/30 backdrop-blur-sm">
-            <SidebarTrigger className="text-foreground">
-              <Menu className="w-5 h-5" />
-            </SidebarTrigger>
-          </header>
+        <header className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4 border-border/30">
+          <div className="flex items-center gap-3 mr-4">
+            <img
+              src="/placeholder.svg"
+              alt="Hex PIP logo"
+              className="w-8 h-8 rounded-lg object-contain"
+            />
+            <h2 className="text-sm font-semibold text-foreground">HEX PIP</h2>
+          </div>
+
+          <SidebarTrigger className="text-foreground">
+          </SidebarTrigger>
+
+          <Button variant="ghost" size="icon">
+            <Home className="w-5 h-5" />
+          </Button>
+          
+          <Button variant="ghost" size="icon" className="ml-auto">
+            <Settings className="w-5 h-5" />
+          </Button>
+        </header>
+        
+        <main className="flex-1 relative pt-14">
+          <div className="absolute inset-0" style={{ backdropFilter: "blur(2px)", backgroundColor: "rgba(0, 0, 0, 0.6)" }}></div>
 
           <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] p-8">
             <div className="text-center mb-12">
@@ -49,7 +69,7 @@ const Index = () => {
             </div>
           </div>
 
-          <DecorativeElements />
+          {/* <DecorativeElements /> */}
         </main>
       </div>
     </SidebarProvider>

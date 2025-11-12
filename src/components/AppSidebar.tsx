@@ -18,18 +18,6 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarContent className="p-4">
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <img
-              src="/favicon.ico"
-              alt="Hex PIP logo"
-              className="w-8 h-8 rounded-lg object-contain"
-            />
-            <div>
-              <h2 className="text-sm font-semibold text-sidebar-foreground">HEX PIP</h2>
-            </div>
-          </div>
-        </div>
 
         <SidebarGroup  style={{ display: "none" }}>
           <SidebarGroupLabel className="text-xs text-muted-foreground mb-2">
