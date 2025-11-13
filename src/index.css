@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font definitions */
+@font-face {
+  font-family: 'Recoleta';
+  src: url('/fonts/Recoleta/fonnts.com-recoleta-regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Recoleta';
+  src: url('/fonts/Recoleta/fonnts.com-recoleta-bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -26,8 +41,8 @@ All colors MUST be HSL.
     --muted: 240 10% 25%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 20 50% 50%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 200 40% 80%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;

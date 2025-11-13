@@ -61,6 +61,11 @@ export default {
         "gradient-end": "hsl(var(--gradient-end))",
         "glass-bg": "hsl(var(--glass-bg))",
       },
+      fontFamily: {
+        sans: ['Manrope', 'ui-sans-serif', 'system-ui'],
+        serif: ['Recoleta', 'ui-serif', 'Georgia'],
+        display: ['Lemon', 'serif'],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
