@@ -17,10 +17,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarContent className="p-4">
+      <SidebarContent className="p-4 pt-14">
 
         <SidebarGroup  style={{ display: "none" }}>
-          <SidebarGroupLabel className="text-xs text-muted-foreground mb-2">
+          <SidebarGroupLabel className="text-xs text-foreground mb-2">
             Labs
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -35,8 +35,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-6" style={{ display: "none" }}>
-          <SidebarGroupLabel className="text-xs text-muted-foreground mb-2">
+        <SidebarGroup className="mt-6" style={{ display: "" }}>
+          <SidebarGroupLabel className="text-xs text-foreground mb-2">
             Check out what's new
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -57,31 +57,34 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup className="mt-8">
-          <SidebarGroupLabel className="text-xs text-muted-foreground mb-2">
+          <SidebarGroupLabel className="text-xs text-foreground mb-2">
             Conversation History
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <div className="text-xs text-muted-foreground px-3 py-2">
-              Conversations with PIP will be shown here.
-            </div>
-            <SidebarMenu>
-              {recentConversations.map((conv) => (
-                <SidebarMenuItem key={conv.id}>
-                  <SidebarMenuButton className="text-sidebar-foreground hover:bg-sidebar-accent">
-                    <MessageSquare className="w-4 h-4" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs font-medium">{conv.title}</span>
-                      <span className="text-xs text-muted-foreground">{conv.time}</span>
-                    </div>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            {recentConversations.length === 0 ? (
+              <div className="text-xs text-muted-foreground px-3 py-2">
+                Conversations with PIP will be shown here.
+              </div>
+            ) : (
+              <SidebarMenu>
+                {recentConversations.map((conv) => (
+                  <SidebarMenuItem key={conv.id}>
+                    <SidebarMenuButton className="text-sidebar-foreground hover:bg-sidebar-accent">
+                      <MessageSquare className="w-4 h-4" />
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs font-medium">{conv.title}</span>
+                        <span className="text-xs text-muted-foreground">{conv.time}</span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
 
         <div className="mt-auto pt-8">
-          <button className="flex items-center gap-2 text-sm text-sidebar-foreground hover:text-sidebar-primary transition-colors">
+          <button className="flex items-center gap-2 text-sm text-sidebar-foreground hover:text-sidebar-primary transition-colors bg-sidebar-accent rounded px-3 py-2">
             <span>👤</span>
             <span>Sign in</span>
           </button>
