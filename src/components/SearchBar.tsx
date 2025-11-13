@@ -5,7 +5,7 @@ export function SearchBar() {
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div className="relative">
-        <div className="bg-card/80 backdrop-blur-xl rounded-xl p-6 border border-border/50 shadow-2xl">
+        <div className="bg-card/40 backdrop-blur-xl rounded-xl p-6 border border-border/50 shadow-2xl">
 
           <div className="flex items-center">
             <div className="flex-1">
