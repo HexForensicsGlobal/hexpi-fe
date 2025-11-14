@@ -58,7 +58,7 @@ export function AppSidebar() {
 
         <SidebarGroup className="mt-8">
           <SidebarGroupLabel className="text-xs text-foreground mb-2">
-            Conversation History
+            Query History
           </SidebarGroupLabel>
           <SidebarGroupContent>
             {recentConversations.length === 0 ? (
