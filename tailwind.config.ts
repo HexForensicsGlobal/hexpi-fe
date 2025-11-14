@@ -92,10 +92,31 @@ export default {
             height: "0",
           },
         },
+        float: {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-12px)",
+          },
+        },
+        "pulse-glow": {
+          "0%, 100%": {
+            opacity: "0.45",
+            transform: "scale(0.98)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1.04)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        float: "float 7s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 6s ease-in-out infinite",
+        "pulse-glow-delayed": "pulse-glow 8s ease-in-out infinite 1.5s",
       },
     },
   },
