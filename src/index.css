@@ -66,6 +66,9 @@ All colors MUST be HSL.
     --gradient-start: 200 60% 20%;
     --gradient-end: 20 50% 50%;
     --glass-bg: 240 20% 15%;
+    /* Experimental green color (HSL) */
+    --experimental-green: 145 60% 40%;
+    --experimental-green-foreground: 0 0% 98%;
   }
 }
 

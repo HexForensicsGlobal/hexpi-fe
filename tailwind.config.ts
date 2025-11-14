@@ -60,6 +60,10 @@ export default {
         "gradient-start": "hsl(var(--gradient-start))",
         "gradient-end": "hsl(var(--gradient-end))",
         "glass-bg": "hsl(var(--glass-bg))",
+        "experimental-green": {
+          DEFAULT: "hsl(var(--experimental-green))",
+          foreground: "hsl(var(--experimental-green-foreground))",
+        },
       },
       fontFamily: {
         sans: ['Manrope', 'ui-sans-serif', 'system-ui'],
