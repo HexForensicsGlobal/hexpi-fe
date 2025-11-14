@@ -1,15 +1,14 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-
 import Header from "@/components/Header";
-import { AISearchHome } from "@/components/ai_search/AISearchHome";
+import { Outlet } from "react-router-dom";
 
 const Index = () => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full relative overflow-hidden" style={{ backgroundImage: "url('/aurura_bg.jpeg')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+      <div className="flex min-h-screen w-full relative overflow-hidden bg-[url('/aurura_bg.jpeg')] bg-cover bg-center bg-no-repeat">
         {/* Blurred background with tint */}
-        <div className="absolute inset-0" style={{ backdropFilter: "blur(2px)", backgroundColor: "rgba(0, 0, 0, 0.6)" }}></div>
+        <div className="absolute inset-0 backdrop-blur-[2px] bg-black/60"></div>
         
         <AppSidebar />
         <Header />
@@ -18,16 +17,12 @@ const Index = () => {
           
           {/* Canvas */}
           <div id="canvas" className="relative z-10 flex flex-col min-h-[calc(100vh-3.5rem)]">
-
-            <AISearchHome />
+            <Outlet />
 
             {/* Footer */}
-            <div className="text-center space-y-2 mt-12 pb-4">
-              {/* <p className="text-xs text-muted-foreground">
-              Hex PIP uses AI and may make mistakes. Please verify important information.
-              </p> */}
+            <div className="text-center space-y-2 mt-auto pb-4">
               <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Hex Forensics. All rights reserved.
+                © {new Date().getFullYear()} Hex Forensics. All rights reserved.
               </p>
             </div>
           </div>

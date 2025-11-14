@@ -1,4 +1,4 @@
-import { Sparkles, MessageSquare, Home, Search,FileText, AppWindow,BarChart2, Info } from "lucide-react";
+import { Sparkles, MessageSquare, Home, Search } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,10 +16,8 @@ export function AppSidebar() {
   const location = useLocation();
   
   const navigationTabs = [
-    { id: 'home', title: 'Home', path: '/', icon: Home },
-    { id: 'search', title: 'Search', path: '/search', icon: Search },
-  { id: 'results', title: 'Results', path: '/results', icon: BarChart2 },
-  { id: 'about', title: 'About', path: '/about', icon: Info },
+    { id: "ai", title: "AI Search", path: "/app", icon: Sparkles },
+    { id: "keyword", title: "Keyword Search", path: "/app/keyword-search", icon: Search },
   ];
 
   const recentConversations = [

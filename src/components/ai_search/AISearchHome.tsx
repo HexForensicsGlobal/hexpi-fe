@@ -17,7 +17,7 @@ export const AISearchHome = ({ className }: AISearchHomeProps) => {
     >
       <div>
         <h1 className="text-5xl font-semibold font-serif text-muted-foreground mb-4">
-          AI Assisted Search
+          AI Assisted Data Search
         </h1>
         <p className="text-3xl text-foreground/90">What are we looking for today?</p>
       </div>
