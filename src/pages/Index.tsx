@@ -18,8 +18,10 @@ const Index = () => {
           {/* Blurred background with tint */}
           <div className="absolute inset-0" style={{ backdropFilter: "blur(2px)", backgroundColor: "rgba(0, 0, 0, 0.6)" }}></div>
           
-          {/* Content */}
-          <div className="relative z-10 flex flex-col min-h-[calc(100vh-3.5rem)] p-8">
+          {/* Canvas */}
+          <div className="relative z-10 flex flex-col min-h-[calc(100vh-3.5rem)]">
+
+            {/* Main content, replaceable */}
             <div className="flex-1 flex flex-col items-center justify-center">
               <div className="text-center mb-12">
                 {/* Greeting */}
@@ -37,7 +39,7 @@ const Index = () => {
             </div>
             
             {/* Footer */}
-            <div className="text-center space-y-2 mt-12 ">
+            <div className="text-center space-y-2 mt-12 pb-4">
               {/* <p className="text-xs text-muted-foreground">
               Hex PIP uses AI and may make mistakes. Please verify important information.
               </p> */}
