@@ -5,7 +5,7 @@ export function QuickActions() {
     "Write a first draft",
     "Get advice",
     "Learn something new",
-    "Create an image",
+    // "Create an image",
     "Make a plan",
   ];
 

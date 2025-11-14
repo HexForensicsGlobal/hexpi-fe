@@ -7,7 +7,6 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center border-border/30 pr-4">
       {/* Sidebar Header Section */}
-      {/** Sidebar header -- shrink when sidebar is collapsed */}
       <div
         className={`flex items-center gap-3 transition-[width] duration-200 ease-linear ${state === 'collapsed' ? 'w-[var(--sidebar-width-icon)]' : 'w-[14rem]'}`}
       >
