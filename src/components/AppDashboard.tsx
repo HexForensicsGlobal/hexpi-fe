@@ -83,7 +83,7 @@ const activity = [
 
 const AppDashboard = () => {
   return (
-    <div className="flex-1 px-6 py-10 text-foreground">
+    <div className="flex-1 px-16 py-10 text-foreground">
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
           <Badge className="bg-experimental-green/10 text-experimental-green-foreground">
