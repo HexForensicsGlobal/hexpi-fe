@@ -1,6 +1,7 @@
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Settings, Home, Bell } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const { state } = useSidebar();
@@ -12,20 +13,22 @@ const Header = () => {
       >
         {/* logo */}
         <div className={`flex items-center gap-3 pl-7 pr-7 pt-4 text-experimental-green-foreground flex-shrink-0`}>
-          <img
-            src="/HEX-PI_logo.svg"
-            alt="Hex PIP logo"
-            className="w-10 h-10  object-contain"
-          />
+          <Link to="/">
+            <img
+              src="/HEX-PI_logo.svg"
+              alt="Hex PIP logo"
+              className="w-10 h-10  object-contain"
+            />
+          </Link>
           {/* <h2 className="text-sm font-semibold font-serif text-experimental-green-foreground">Hex PIP</h2> */}
         </div>
 
         <div className={`flex items-center ${state === 'collapsed' ? 'ml-0' : 'ml-auto'}`}>
           <SidebarTrigger className="text-foreground">
           </SidebarTrigger>
-          <Button variant="ghost" size="icon">
+          {/* <Button variant="ghost" size="icon">
             <Home className="w-5 h-5" />
-          </Button>
+          </Button> */}
         </div>
       </div>
 

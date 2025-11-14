@@ -16,8 +16,10 @@ export function AppSidebar() {
   const location = useLocation();
   
   const navigationTabs = [
-    { id: "ai", title: "AI Search", path: "/app", icon: Sparkles },
+    { id: "dashboard", title: "Dashboard", path: "/app", icon: Home },
     { id: "keyword", title: "Keyword Search", path: "/app/keyword-search", icon: Search },
+    { id: "ai", title: "AI Search", path: "/app/ai-search", icon: Sparkles },
+    
   ];
 
   const recentConversations = [
@@ -33,7 +35,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {navigationTabs.map((tab) => {
                 const Icon = tab.icon;
-                const isActive = location.pathname === tab.path;
+                const isActive =
+                  tab.path === "/app"
+                    ? location.pathname === "/app"
+                    : location.pathname.startsWith(tab.path);
                 return (
                   <SidebarMenuItem key={tab.id}>
                     <SidebarMenuButton 
