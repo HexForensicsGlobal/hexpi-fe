@@ -28,7 +28,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarContent className="p-4 pt-14 mt-4">
+      <SidebarContent className="p-4 pt-14 mt-6">
 
         <SidebarGroup className="">
           <SidebarGroupContent>
