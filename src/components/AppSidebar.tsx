@@ -1,4 +1,4 @@
-import { Sparkles, MessageSquare, Home, Search } from "lucide-react";
+import { Sparkles, MessageSquare, Home, UserSearch, Wand, FileText } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,8 +17,9 @@ export function AppSidebar() {
   
   const navigationTabs = [
     { id: "dashboard", title: "Dashboard", path: "/app", icon: Home },
-    { id: "keyword", title: "Keyword Search", path: "/app/keyword-search", icon: Search },
-    { id: "ai", title: "AI Search", path: "/app/ai-search", icon: Sparkles },
+    { id: "keyword", title: "Search", path: "/app/keyword-search", icon: UserSearch },
+    { id: "ai", title: "AI Discovery", path: "/app/ai-search", icon: Sparkles },
+    { id: "reports", title: "Reports", path: "/app/reports", icon: FileText },
     
   ];
 
@@ -63,7 +64,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground hover:bg-sidebar-accent">
-                  <Sparkles className="w-4 h-4" />
+                  <Wand className="w-4 h-4" />
                   <span className="text-sm">Experimental AI initiatives</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -119,6 +120,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Bottom tab group */}
         <div className="mt-auto pt-8">
           <hr className="border-sidebar-border mb-2" />
           <button className="flex items-center gap-2 text-sm text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors rounded px-3 py-2 w-[12rem]">
@@ -128,6 +130,15 @@ export function AppSidebar() {
               </svg>
 
             <span>Sign in</span>
+          </button>
+
+          <button className="flex items-center gap-2 text-sm text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors rounded px-3 py-2 w-[12rem]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-6 shrink-0">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Support</span>
           </button>
         </div>
       </SidebarContent>
