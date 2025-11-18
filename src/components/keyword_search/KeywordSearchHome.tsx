@@ -32,6 +32,8 @@ import {
   Search,
 } from "lucide-react";
 import { stateOptions } from "@/lib/state-options";
+import PageHighlights from "./PageHighlights";
+import SearchResults, { SearchResult } from "./SearchResults";
 
 interface PrefillState {
   prefill?: {
@@ -39,16 +41,6 @@ interface PrefillState {
     lastName?: string;
     stateFilter?: string;
   };
-}
-
-interface SearchResult {
-  id: string;
-  name: string;
-  location: string;
-  matchScore: number;
-  insights: string[];
-  status: "Live" | "Archived";
-  updated: string;
 }
 
 const candidateRecords: SearchResult[] = [
@@ -199,7 +191,7 @@ const KeywordSearchHome = () => {
             {/* Page Header */}
             <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
-                <Badge className="bg-primary/10 text-primary">
+                <Badge className="bg-experimental-green/40 text-experimental-green-foreground hover:bg-experimental-green/40">
                   Keyword Search
                 </Badge>
                 {prefill?.firstName || prefill?.lastName ? (
@@ -437,178 +429,12 @@ const KeywordSearchHome = () => {
               </div>
             </div>
 
-            {/* Next Step Status */}
-            {(status === "searching" || status === "success") && (
-              <div className="mb-8">
-                <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                  <div className="flex items-center gap-4">
-                    <div className="relative h-16 w-16 flex-shrink-0">
-                      {status === "searching" ? (
-                        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                      ) : (
-                        <CheckCircle2 className="h-16 w-16 text-emerald-400" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-1">
-                        {status === "searching" ? "Building a live dossier..." : "Profiles ready to review"}
-                      </h3>
-                      <p className="text-sm text-foreground/70">
-                        {status === "searching" 
-                          ? "Cross-referencing utility, telecom, and civil sources in real time."
-                          : `We surfaced the strongest matches for ${lastQuery?.firstName} ${lastQuery?.lastName} plus adjacent variations.`
-                        }
-                      </p>
-                    </div>
-                    {/* {status === "success" && (
-                      <Button size="lg">
-                        VIEW REPORTS
-                      </Button>
-                    )} */}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Results Section */}
-            {status === "success" && lastQuery && (
-              <div className="mt-8">
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-2xl font-semibold">Identity Resolution Matches</h2>
-                    <Badge variant="outline" className="border-white/20 text-foreground/70">
-                      <UserSearch className="mr-2 h-4 w-4" /> {results.length} candidates
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-foreground/70">
-                    Aggregated candidates for {lastQuery.firstName} {lastQuery.lastName} • {lastQuery.stateFilter}
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {results.map((result) => (
-                    <div
-                      key={result.id}
-                      className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition hover:border-primary/40"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <h3 className="text-xl font-semibold text-white">{result.name}</h3>
-                            <Badge variant="secondary" className="bg-white/10 text-foreground">
-                              Match score {result.matchScore}%
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-foreground/70 mb-4">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            <span>{result.location}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {result.insights.map((insight) => (
-                              <Badge key={insight} variant="outline" className="border-white/15 text-foreground/70">
-                                <CheckCircle2 className="mr-1 h-3 w-3 text-primary" /> {insight}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <Button>Open background brief</Button>
-                          <div className="flex items-center gap-2 text-xs text-foreground/60">
-                            <Sparkles className="h-3 w-3 text-primary" />
-                            <span>{result.status}</span>
-                            <span>•</span>
-                            <span>Updated {result.updated}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4 text-xs text-foreground/70">
-                  <div className="flex items-center gap-2">
-                    <History className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-medium">Signal refresh completed 12 minutes ago</span>
-                  </div>
-                  <p className="mt-1">Coverage spans state court dockets, property indexes, telecom, utilities, and professional licensing.</p>
-                </div>
-              </div>
-            )}
+            <SearchResults status={status} lastQuery={lastQuery} results={results} />
           </div>
         
           {/* Highlights - Right panel */}
-          <div className="lg:sticky lg:top-8 lg:self-start lg:h-[calc(100vh-10rem)]">
-            {/* Actions  */}
-            <div className="flex items-center gap-3 mb-4">
-              <Button variant="ghost" size="sm" className="gap-2 border-b-2 border-primary mx-auto">
-                <Clock className="h-4 w-4" />
-                Recent cases
-              </Button>
-              <Button variant="ghost" size="sm" className="gap-2 border-b-2 border-primary mx-auto">
-                <BarChart3 className="h-4 w-4" />
-                Source quality
-              </Button>
-              {/* <Button variant="ghost" size="sm" className="gap-2 border-b-2 border-primary">
-                <BookmarkPlus className="h-4 w-4" />
-                Save Search
-              </Button> */}
-            </div>
-
-            {/* Right Show glass */}
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl h-full overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Workspace highlights</h3>
-
-              <div className="space-y-6">
-                {/* Recommended Section */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                  <Badge className="bg-primary/10 text-primary mb-4">
-                    Recommended action
-                  </Badge>
-                  <h3 className="text-lg font-semibold mb-2">Enable phone monitoring</h3>
-                  <p className="text-sm text-foreground/70 mb-4">
-                    Link a verified investigator line to trigger alerts whenever new phone data is ingested for your watchlist subjects.
-                  </p>
-                  <Button variant="outline" className="w-full">
-                    Connect phone channel
-                  </Button>
-                </div>
-       
-                {/* Account Status */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                  <h3 className="text-sm font-semibold mb-4 text-foreground/80">Data entitlements</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-foreground/70">Background briefs</span>
-                      <Badge variant="outline" className="border-emerald-400/50 text-emerald-300">
-                        <CheckCircle2 className="mr-1 h-3 w-3" /> Unlimited
-                      </Badge>
-                    </div>
-                    <Separator className="bg-white/10" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-foreground/70">Phone intelligence</span>
-                      <Button size="sm" variant="outline" className="h-7 text-xs">
-                        ENABLE
-                      </Button>
-                    </div>
-                    <Separator className="bg-white/10" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-foreground/70">Email telemetry</span>
-                      <Button size="sm" variant="outline" className="h-7 text-xs">
-                        ENABLE
-                      </Button>
-                    </div>
-                    <Separator className="bg-white/10" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-foreground/70">Location intelligence</span>
-                      <Badge variant="outline" className="border-emerald-400/50 text-emerald-300">
-                        <CheckCircle2 className="mr-1 h-3 w-3" /> Unlimited
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PageHighlights />
 
         </div>
       </div>

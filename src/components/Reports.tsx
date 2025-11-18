@@ -154,7 +154,7 @@ const Reports = () => {
     <div className="flex-1 px-6 py-8 text-foreground">
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <Badge className="bg-primary/10 text-primary">Reports workspace</Badge>
+          <Badge className="bg-experimental-green/40 text-experimental-green-foreground">Reports workspace</Badge>
           <h1 className="mt-4 text-3xl font-semibold">Intelligence dossiers</h1>
           <p className="mt-2 max-w-2xl text-sm text-foreground/70">
             Review published briefs, pick up drafts, and launch new reports directly from prior searches or live signals.
