@@ -13,7 +13,7 @@ const Index = () => {
         <AppSidebar />
         <Header />
         
-        <main className="flex-1 relative pt-14">
+        <main className="flex-1 relative pt-16">
           
           {/* Canvas */}
           <div id="canvas" className="relative z-10 flex flex-col min-h-[calc(100vh-3.5rem)]">
@@ -26,6 +26,7 @@ const Index = () => {
               </p>
             </div>
           </div>
+          
         </main>
         
       </div>
