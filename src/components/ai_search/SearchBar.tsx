@@ -1,7 +1,18 @@
+import { useEffect, useState } from "react";
 import { Plus, Paperclip, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function SearchBar() {
+interface SearchBarProps {
+  initialQuery?: string;
+}
+
+export function SearchBar({ initialQuery = "" }: SearchBarProps) {
+  const [value, setValue] = useState(initialQuery);
+
+  useEffect(() => {
+    setValue(initialQuery);
+  }, [initialQuery]);
+
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div className="relative">
@@ -12,6 +23,8 @@ export function SearchBar() {
               <input
                 type="text"
                 placeholder="Ask anything..."
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
                 className="w-full bg-transparent text-foreground placeholder:text-muted-foreground text-base outline-none"
               />
             </div>
