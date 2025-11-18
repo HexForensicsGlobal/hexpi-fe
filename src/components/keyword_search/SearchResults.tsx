@@ -19,6 +19,53 @@ export interface SearchResult {
   updated: string;
 }
 
+const candidateRecords: SearchResult[] = [
+  {
+    id: "1",
+    name: "Johnathan Smith",
+    location: "New York, NY",
+    matchScore: 92,
+    insights: ["Utilities account", "Property filings", "Alias detected"],
+    status: "Live",
+    updated: "2h ago",
+  },
+  {
+    id: "2",
+    name: "Joanna Smith",
+    location: "Austin, TX",
+    matchScore: 78,
+    insights: ["Business registration", "Social media"],
+    status: "Live",
+    updated: "5h ago",
+  },
+  {
+    id: "3",
+    name: "John Smith",
+    location: "Seattle, WA",
+    matchScore: 66,
+    insights: ["Court docket", "Professional license"],
+    status: "Archived",
+    updated: "1d ago",
+  },
+];
+
+export const filterCandidateRecords = (
+  firstName: string,
+  lastName: string,
+  stateFilter: string
+): SearchResult[] => {
+  const filtered = candidateRecords.filter((record) => {
+    const name = record.name.toLowerCase();
+    const matchesFirst = name.includes(firstName.toLowerCase());
+    const matchesLast = name.includes(lastName.toLowerCase());
+    const matchesState =
+      stateFilter === "All States" || record.location.includes(stateFilter);
+    return matchesFirst && matchesLast && matchesState;
+  });
+
+  return filtered.length > 0 ? filtered : candidateRecords;
+};
+
 interface SearchResultsProps {
   status: "idle" | "searching" | "success";
   lastQuery: { firstName: string; lastName: string; stateFilter: string } | null;
