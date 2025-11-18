@@ -1,7 +1,7 @@
 # People-Intelligence-Platform Frontend
 
 ## Purpose
-This document defines the requirements for the frontend application of the People-Intelligence-Platform. The frontend provides a user-friendly web interface for searching and displaying results from a large dataset managed by the backend FastAPI service and stored in a SQLite database.
+This document defines the requirements for the frontend application of the People-Intelligence-Platform, a Nigerian based Intelligence platform(Investigation as a service). The frontend provides a user-friendly web interface for searching and displaying results from a large dataset managed by the backend FastAPI service and stored in a SQLite database.
 
 ## Scope
 The frontend is a React application built with TypeScript. It interacts with the backend API to perform keyword-based searches and display results efficiently. The UI is designed to be simple, responsive, and intuitive, supporting efficient workflows for users searching large datasets.
