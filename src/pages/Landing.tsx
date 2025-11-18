@@ -27,12 +27,19 @@ import {
   School,
   Landmark,
   Fingerprint,
+  ArrowUpRight,
+  Mail,
+  Phone,
+  Twitter,
+  Linkedin,
+  Globe,
 } from "lucide-react";
 
 const Landing = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [stateFilter, setStateFilter] = useState("All States");
+  const currentYear = new Date().getFullYear();
   const navigate = useNavigate();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -50,33 +57,33 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-[rgba(2,8,23,0.9)] to-black text-foreground">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 pb-20 pt-10">
-        <header className="flex flex-wrap items-center justify-between gap-4 text-sm text-foreground/80">
-          <div className="flex items-center gap-3">
-            <img src="/HEX-PI_logo.svg" alt="Hex PIP" className="h-10 w-10" />
-            <div>
-              <p className="text-base font-semibold text-foreground">Hex PIP</p>
-              <p className="text-xs text-foreground/60">People Intelligence Platform</p>
-            </div>
+      <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-6 pb-6 pt-10 text-sm text-foreground/80">
+        <div className="flex items-center gap-3">
+          <img src="/HEX-PI_logo.svg" alt="Hex PIP" className="h-10 w-10" />
+          <div>
+            <p className="text-base font-semibold text-foreground">Hex PIP</p>
+            <p className="text-xs text-foreground/60">Investigative Intelligence Cloud</p>
           </div>
-          <nav className="hidden gap-6 sm:flex">
-            <Link to="/" className="hover:text-primary">Home</Link>
-            <Link to="/results" className="hover:text-primary">Results</Link>
-            <Link to="/about" className="hover:text-primary">About</Link>
-            <a href="#faq" className="hover:text-primary">FAQ</a>
-          </nav>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-white/20 text-foreground hover:text-background">
-              Login
-            </Button>
-            <Button className="bg-primary">Sign up</Button>
-          </div>
-        </header>
+        </div>
+        <nav className="hidden gap-6 sm:flex">
+          <Link to="/" className="hover:text-primary">Home</Link>
+          <Link to="/results" className="hover:text-primary">Results</Link>
+          <Link to="/about" className="hover:text-primary">About</Link>
+          <a href="#faq" className="hover:text-primary">FAQ</a>
+        </nav>
+        <div className="flex gap-3">
+          <Button variant="outline" className="border-white/20 text-foreground hover:text-background">
+            Login
+          </Button>
+          <Button className="bg-primary">Sign up</Button>
+        </div>
+      </header>
 
+      <div className="mx-auto mt-2 flex w-full max-w-6xl flex-col gap-12 px-6 pb-20">
         <section className="text-center">
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-foreground/60">
             <Badge variant="outline" className="border-white/15 bg-white/5 text-foreground/80">
-              Accredited • BBB Rating A
+              Backed by 300+ risk, trust & safety teams
             </Badge>
             <div className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-1">
               <Shield className="h-4 w-4 text-primary" />
@@ -88,23 +95,22 @@ const Landing = () => {
             </div>
           </div>
           <Badge className="mx-auto mt-6 bg-white/10 text-sm text-foreground/80">Trusted by compliance teams</Badge>
-          <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl">Public Records Search</h1>
+            <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl">The Background Intelligence Platform</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-foreground/70">
-            Discover social media, public filings, background checks, civil judgements, contact
-            information, and more—powered by Hex Forensics data infrastructure.
+            PIP orchestrates social, telecom, court, and specialty data so investigators can instantly see ties, locations, and risk triggers for any person or business of interest.
           </p>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-xl">
-          <div className="relative mb-5 rounded-full bg-black/60 px-4 py-2 text-center text-sm font-medium text-foreground/80">
-            Start here — look up a friend, partner, or yourself in seconds
+        <section className="mx-auto w-full max-w-4xl rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-xl">
+          <div className="relative mx-auto mb-5 w-full max-w-xl rounded-full bg-black/60 px-4 py-2 text-center text-sm font-medium text-foreground/80">
+            Kick off a trace — pinpoint a person or business in under 60 seconds
           </div>
           <form className="grid gap-4 md:grid-cols-3" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
               <Label htmlFor="firstName">First name</Label>
               <Input
                 id="firstName"
-                placeholder="e.g. John"
+                placeholder="e.g. Ahmed"
                 value={firstName}
                 onChange={(event) => {
                   setFirstName(event.target.value);
@@ -115,7 +121,7 @@ const Landing = () => {
               <Label htmlFor="lastName">Last name</Label>
               <Input
                 id="lastName"
-                placeholder="e.g. Smith"
+                placeholder="e.g. Ikenna"
                 value={lastName}
                 onChange={(event) => {
                   setLastName(event.target.value);
@@ -139,50 +145,51 @@ const Landing = () => {
             </div>
             <div className="md:col-span-3">
               <Button type="submit" size="lg" className="w-full text-base">
-                Search public records
+                Launch background sweep  <ArrowUpRight className="mr-1 h-3 w-3" />
               </Button>
             </div>
           </form>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-foreground/60">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-green-400" />
-              Secure connection confirmed
+              Encrypted session
             </div>
-            <p>Powered by Hex Forensics data graph</p>
+            <p>Powered by the <span className="font-bold">Hex Forensics</span> Entity Graph.</p>
           </div>
         </section>
 
-        <section className="relative grid gap-6 rounded-3xl border border-white/10 bg-gradient-to-r from-primary/20 to-emerald-500/20 p-6 text-left shadow-xl backdrop-blur-xl md:grid-cols-[1fr_auto]">
+        <section className="relative grid gap-6 rounded-xl border-t border-white/10 bg-gradient-to-r from-primary/20 to-emerald-500/20 p-6 text-left shadow-xl backdrop-blur-xl md:grid-cols-[1fr_auto]">
           <div>
-            <p className="text-sm font-semibold text-primary/90">AI assisted search</p>
-            <h2 className="mt-2 text-2xl font-semibold">Start an AI-guided discovery</h2>
+            <p className="text-sm font-semibold text-primary/90">AI Orchestrator
+              <Badge variant="secondary" className="bg-white/50 text-foreground ml-2">
+                <BotIcon className=" mr-1 h-3.5 w-3.5" /> <span className="text-xs">New</span>
+              </Badge>
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold">Spin up an AI-guided discovery</h2>
             <p className="mt-3 text-sm text-foreground/80">
-              Summaries, conversation-ready insights, and red-flag monitoring fed directly to your
-              investigations dashboard.
+              Let our Orchestrator triage datasets, summarize narratives, and surface red flags without leaving your investigation workspace.
             </p>
           </div>
-          <div className="flex flex-col items-end gap-3 text-sm">
-            <Badge variant="secondary" className="bg-white/80 text-foreground">
-              <BotIcon className="mr-1 h-3.5 w-3.5" /> New
-            </Badge>
-            <Button variant="secondary" className="bg-background text-foreground">
-              Try AI search now
-            </Button>
+          <div className="flex flex-col items-end gap-3 text-sm my-auto">
+            
+            {/* <Button variant="secondary" className="bg-background text-foreground">
+              Run AI search now
+            </Button> */}
             <Button variant="outline" className="border-white/40">
-              AI-assisted search <ChevronRight className="ml-1 h-4 w-4" />
+              See how the copilot works <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/5 bg-white/5 p-6 text-center text-foreground/80 backdrop-blur-xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/60">Data coverage</p>
+        <section className="rounded-xl border border-white/5 bg-white/5 p-6 text-center text-foreground/80 backdrop-blur-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/60">Signal classes</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {[
-              { icon: Camera, label: "Photos" },
-              { icon: ScrollText, label: "Court filings" },
-              { icon: School, label: "Education" },
-              { icon: Landmark, label: "Property" },
-              { icon: Fingerprint, label: "Background" },
+              { icon: Camera, label: "Visual identifiers" },
+              { icon: ScrollText, label: "Company fillings" },
+              { icon: School, label: "Academic credentials" },
+              { icon: Landmark, label: "Deeds & assets" },
+              { icon: Fingerprint, label: "Regulatory actions" },
             ].map((item) => (
               <div
                 key={item.label}
@@ -195,25 +202,25 @@ const Landing = () => {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-          <p className="text-sm font-semibold text-foreground/70">Why professionals trust Hex PIP</p>
+        <section className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+          <p className="text-sm font-semibold text-foreground/70">Why investigative teams pick Hex PIP</p>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[{
               icon: Users,
-              label: "Social insights",
-              text: "Cross-network profiles, relationships, and alias detection."
+              label: "Network intelligence",
+              text: "Link charts across social, corporate, and telecom identities for faster attribution."
             }, {
               icon: ShieldCheck,
-              label: "Compliance ready",
-              text: "Confidential infrastructure with audit logging enabled."
+              label: "Audit-ready compliance",
+              text: "Granular logging, least-privilege roles, and jurisdictional guardrails out of the box."
             }, {
               icon: History,
-              label: "Historic filings",
-              text: "Corporate & court documents dating back two decades."
+              label: "Deep history",
+              text: "Corporate, court, and media archives stretching back 20+ years."
             }, {
               icon: Sparkles,
-              label: "AI summaries",
-              text: "Readable briefs generated from raw entity data."
+              label: "Narrative briefs",
+              text: "AI-crafted storyboards translate raw entity data into action-ready briefs."
             }].map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/5 bg-black/30 p-4">
                 <item.icon className="h-5 w-5 text-primary" />
@@ -224,6 +231,82 @@ const Landing = () => {
           </div>
         </section>
       </div>
+
+      <footer className="mx-auto mt-4 w-full max-w-7xl rounded-3xl border-t border-white/10 bg-black/10 px-6 py-10 text-sm text-foreground/80 backdrop-blur-2xl sm:px-10">
+        <div className="grid gap-8 md:grid-cols-[1.2fr_repeat(2,0.8fr)] lg:grid-cols-[1.5fr_repeat(3,0.7fr)]">
+          <div>
+            <div className="flex items-center gap-3">
+              <img src="/HEX-PI_logo.svg" alt="Hex PIP" className="h-10 w-10" />
+              <div>
+                <p className="text-base font-semibold text-foreground">Hex PIP</p>
+                <p className="text-xs text-foreground/60">Investigative Intelligence Cloud</p>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-foreground/70">
+              We fuse proprietary entity graphs, AI summarization, and analyst-grade telemetry so you can close diligence loops with fewer handoffs.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3 text-xs">
+              <span className="rounded-full border border-white/15 px-3 py-1">FCRA-aligned workflows</span>
+              <span className="rounded-full border border-white/15 px-3 py-1">Zero-trust controls</span>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Explore</h3>
+            <div className="mt-4 flex flex-col gap-2">
+              <Link to="/" className="hover:text-primary">Platform overview</Link>
+              <Link to="/results" className="hover:text-primary">Sample results</Link>
+              <Link to="/about" className="hover:text-primary">About the team</Link>
+              <a href="#faq" className="hover:text-primary">FAQ</a>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Contact</h3>
+            <div className="mt-4 space-y-2">
+              <a href="mailto:intel@hexforensics.com" className="flex items-center gap-2 hover:text-primary">
+                <Mail className="h-4 w-4 text-primary" /> intel@hexforensics.com
+              </a>
+              <a href="tel:+12125555555" className="flex items-center gap-2 hover:text-primary">
+                <Phone className="h-4 w-4 text-primary" /> +1 (212) 555-5555
+              </a>
+              <p className="flex items-center gap-2 text-foreground/60">
+                <ShieldCheck className="h-4 w-4 text-emerald-400" /> 24/7 breach watch
+              </p>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Connect</h3>
+            <div className="mt-4 flex gap-3">
+              {[{ icon: Twitter, label: "Twitter", href: "https://twitter.com" },
+                { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
+                { icon: Globe, label: "Research blog", href: "https://hexforensics.com" },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-foreground/70 transition hover:border-primary/60 hover:text-primary"
+                  aria-label={item.label}
+                >
+                  <item.icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-foreground/60">
+              Follow along for data sourcing releases, SOC updates, and investigation playbooks.
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-4 text-xs text-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {currentYear} Hex Forensics Global. All rights reserved.</p>
+          <div className="flex flex-wrap gap-4">
+            <a href="/privacy" className="hover:text-primary">Privacy</a>
+            <a href="/terms" className="hover:text-primary">Terms</a>
+            <a href="/security" className="hover:text-primary">Security</a>
+            <span>Data residency: US &amp; EU</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
