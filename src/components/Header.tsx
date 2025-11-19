@@ -22,32 +22,10 @@ const Header = () => {
     navigate("/app/ai-search", { state: { query: trimmed } });
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-auto flex items-center backdrop-blur-[3px] border-border/30 px-4 py-2">
-      {/* Sidebar Header Section */}
-      <div className={`flex items-center gap-3 transition-[width] duration-200 ease-linear`}>
-        <div className={`flex items-center`}>
-          <SidebarTrigger className="text-foreground">
-          </SidebarTrigger>
-        </div>
-
-        <div className={`flex items-center gap-3 pt-4 text-experimental-green-foreground flex-shrink-0`}>
-          {/* logo */}
-          <Link to="/">
-            <img
-              src="/HEX-PI_logo.svg"
-              alt="Hex PIP logo"
-              className="w-10 h-10  object-contain"
-            />
-          </Link>
-          {/* Page topic */}
-          <div>
-            {/* TO-DO: Adjust dynamically based on route or context */}
-            <p className="font-semibold text-white">Keyword Search</p>
-            <p className="text-xs text-foreground/60">Live intelligence workspace</p>
-          </div>
-        </div>
+    <header className="w-full z-50 h-auto flex items-center backdrop-blur-md border-b border-white/10 bg-black/10 px-4 py-2">
+      <div className="flex items-center">
+        <SidebarTrigger className="text-foreground" />
       </div>
-      
       
       {/* Quick Search */} 
       {showQuickSearch ? (

@@ -11,12 +11,12 @@ const Index = () => {
         <div className="absolute inset-0 backdrop-blur-[2px] bg-black/60"></div>
         
         <AppSidebar />
-        <Header />
         
-        <main className="flex-1 relative pt-16">
+        <main className="flex-1 relative flex flex-col h-screen overflow-hidden">
+          <Header />
           
           {/* Canvas */}
-          <div id="canvas" className="relative z-10 flex flex-col min-h-[calc(100vh-3.5rem)]">
+          <div id="canvas" className="relative z-10 flex flex-col flex-1 overflow-y-auto">
             <Outlet />
 
             {/* Footer */}

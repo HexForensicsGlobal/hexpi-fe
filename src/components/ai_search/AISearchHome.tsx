@@ -33,7 +33,7 @@ export const AISearchHome = ({ className }: AISearchHomeProps) => {
       <div className="w-full max-w-3xl space-y-6">
         <SearchBar initialQuery={initialQuery} />
         <QuickActions />
-        <InfoCards />
+        {/* <InfoCards /> */}
       </div>
     </section>
   );
