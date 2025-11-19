@@ -73,60 +73,27 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
-  if (status === "idle") {
+  if (status !== "success" || !lastQuery) {
     return null;
   }
 
   return (
     <div className="mb-8">
-      {/* Search Activity Section */}
-      <div className="mb-8">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="relative h-16 w-16 flex-shrink-0">
-              {status === "searching" ? (
-                <Loader2 className="h-16 w-16 animate-spin text-primary" />
-              ) : (
-                <CheckCircle2 className="h-16 w-16 text-emerald-400" />
-              )}
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold mb-1">
-                {status === "searching" ? "Building a live dossier..." : "Profiles ready to review"}
-              </h3>
-              <p className="text-sm text-foreground/70">
-                {status === "searching" 
-                  ? "Cross-referencing utility, telecom, and civil sources in real time."
-                  : `We surfaced the strongest matches for ${lastQuery?.firstName} ${lastQuery?.lastName} plus adjacent variations.`
-                }
-              </p>
-            </div>
-            {/* {status === "success" && (
-              <Button size="lg">
-                VIEW REPORTS
-              </Button>
-            )} */}
-          </div>
+      {/* Search Highlights */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-semibold">Identity Resolution Matches</h2>
+          <Badge variant="outline" className="border-white/20 text-foreground/70">
+            <UserSearch className="mr-2 h-4 w-4" /> {results.length} candidates
+          </Badge>
         </div>
+        <p className="text-sm text-foreground/70">
+          Aggregated candidates for {lastQuery.firstName} {lastQuery.lastName} • {lastQuery.stateFilter}
+        </p>
       </div>
-
-      {status === "success" && lastQuery && (
-        <>
-          {/* Search Highlights */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-semibold">Identity Resolution Matches</h2>
-              <Badge variant="outline" className="border-white/20 text-foreground/70">
-                <UserSearch className="mr-2 h-4 w-4" /> {results.length} candidates
-              </Badge>
-            </div>
-            <p className="text-sm text-foreground/70">
-              Aggregated candidates for {lastQuery.firstName} {lastQuery.lastName} • {lastQuery.stateFilter}
-            </p>
-          </div>
-          
-          {/* Search Results */}
-          <div className="space-y-4">
+      
+      {/* Search Results */}
+      <div className="space-y-4">
             {results.map((result) => (
               <div
                 key={result.id}
@@ -166,7 +133,6 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
             ))}
           </div>
 
-            
           <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4 text-xs text-foreground/70">
             <div className="flex items-center gap-2">
               <History className="h-3.5 w-3.5 text-primary" />
@@ -174,9 +140,7 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
             </div>
             <p className="mt-1">Coverage spans state court dockets, property indexes, telecom, utilities, and professional licensing.</p>
           </div>
-        </>
-      )}
-    </div>
+        </div>
   );
 };
 

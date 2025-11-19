@@ -21,40 +21,60 @@ const KeywordSearchHome = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [lastQuery, setLastQuery] = useState<{ firstName: string; lastName: string; stateFilter: string } | null>(null);
   const timeoutId = useRef<number>();
+  const [prefillApplied, setPrefillApplied] = useState(false);
 
   const initialData = prefill ? {
-    searchType: "name" as const,
+    searchType: "person" as const,
     firstName: prefill.firstName ?? "",
     lastName: prefill.lastName ?? "",
     stateFilter: prefill.stateFilter ?? "All States",
   } : undefined;
 
   const runSearch = useCallback(
-    (data: { searchType: string; firstName: string; lastName: string; stateFilter: string }) => {
+    (data: { searchType: string; firstName: string; lastName: string; stateFilter: string; query?: string; selectedEntities?: string[] }) => {
       const trimmed = {
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         stateFilter: data.stateFilter,
+        query: data.query,
       };
 
       setStatus("searching");
 
       timeoutId.current = window.setTimeout(() => {
+        let fName = trimmed.firstName;
+        let lName = trimmed.lastName;
+
+        if (data.searchType === "multi" && trimmed.query) {
+            const parts = trimmed.query.split(" ");
+            if (parts.length >= 2) {
+                fName = parts[0];
+                lName = parts.slice(1).join(" ");
+            } else {
+                fName = trimmed.query;
+                lName = "";
+            }
+        }
+
         const filtered = filterCandidateRecords(
-          trimmed.firstName,
-          trimmed.lastName,
+          fName,
+          lName,
           trimmed.stateFilter
         );
 
         setResults(filtered);
-        setLastQuery(trimmed);
+        setLastQuery({
+            firstName: fName,
+            lastName: lName,
+            stateFilter: trimmed.stateFilter
+        });
         setStatus("success");
       }, 800);
     },
     [],
   );
 
-  const handleSubmit = (data: { searchType: string; firstName: string; lastName: string; stateFilter: string }) => {
+  const handleSubmit = (data: { searchType: string; firstName: string; lastName: string; stateFilter: string; query?: string; selectedEntities?: string[] }) => {
     runSearch(data);
   };
 
@@ -65,6 +85,20 @@ const KeywordSearchHome = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!prefillApplied || !prefill) {
+      return;
+    }
+    if (prefill.firstName && prefill.lastName) {
+      runSearch({
+        searchType: "person",
+        firstName: prefill.firstName,
+        lastName: prefill.lastName,
+        stateFilter: prefill.stateFilter ?? "All States",
+      });
+    }
+  }, [prefillApplied, prefill, runSearch]);
 
   return (
     <div className="flex-1 flex flex-col text-foreground">
@@ -88,7 +122,7 @@ const KeywordSearchHome = () => {
               </div>
               <h1 className="text-3xl font-semibold mb-2">Run Proactive Background Intelligence</h1>
               <p className="text-sm text-foreground/70 max-w-2xl">
-                Activate a national sweep of public records, device signals, and specialty datasets to assemble an always-current profile on the person or business you&#39;re vetting.
+                Activate a national sweep of public records, device signals, and specialty datasets to assemble an always-current profile on the entity you&#39;re vetting.
               </p>
             </div>
 
@@ -97,6 +131,7 @@ const KeywordSearchHome = () => {
               status={status}
               onSubmit={handleSubmit}
               initialData={initialData}
+              lastQuery={lastQuery}
             />
 
             {/* Results Section */}
