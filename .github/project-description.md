@@ -52,7 +52,7 @@ The frontend is a React application built with TypeScript. It interacts with the
 - Application Layer: Communicates with FastAPI backend via REST API.
 - Data Layer: Data is managed by the backend and not directly accessed by the frontend.
 
-## Future Considerations (Out of Scope for Initial Release)
+## Future Considerations
 - Advanced UI features: Pagination, filtering, sorting.
 - Authentication and user management.
 - Integration with advanced search methods (FTS, semantic search).

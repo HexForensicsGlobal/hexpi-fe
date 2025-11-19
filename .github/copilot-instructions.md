@@ -1,6 +1,7 @@
 ## Important Notes
 - Always ask if you need more details on any part of the system or specific implementation guidance.
 - The project is described in ./project-description.md
+- The UI should give a sophisticated "intelligence dashboard" feel.
 
 ## Guidelines for Code Suggestions on this frontend project:
 - prioritize functionality and user experience
