@@ -60,7 +60,7 @@ export function AppSidebar() {
               alt="Hex Pi logo"
               className={cn(
                 "object-contain transition-all duration-200",
-                isCollapsed ? "w-12 h-12" : "w-8 h-8"
+                isCollapsed ? "w-12 h-12" : "w-12 h-10"
               )}
             />
           </Link>
@@ -86,8 +86,14 @@ export function AppSidebar() {
                     : location.pathname.startsWith(tab.path);
                 return (
                   <SidebarMenuItem key={tab.id}>
-                    <SidebarMenuButton 
-                      className={`text-sidebar-foreground hover:bg-sidebar-accent ${isActive ? 'bg-sidebar-accent' : ''}`}
+                    <SidebarMenuButton
+                      tooltip={tab.title}
+                      className={cn(
+                        "text-sidebar-foreground hover:bg-sidebar-accent",
+                        isActive && "bg-sidebar-accent",
+                        "group-data-[collapsible=icon]:!size-12 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:justify-center",
+                        "group-data-[collapsible=icon]:[&>svg]:size-4 group-data-[collapsible=icon]:[&>span:last-child]:hidden"
+                      )}
                       onClick={() => navigate(tab.path)}
                     >
                       <Icon className="w-4 h-4" />

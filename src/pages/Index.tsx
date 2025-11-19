@@ -6,17 +6,15 @@ import { Outlet } from "react-router-dom";
 const Index = () => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full relative overflow-hidden bg-fixed bg-[url('/aurura_bg.jpeg')] bg-cover bg-center bg-no-repeat">
-        {/* Blurred background with tint */}
-        <div className="absolute inset-0 backdrop-blur-[2px] bg-black/60"></div>
-        
+      <div className="flex h-screen w-full relative overflow-hidden bg-sidebar">
         <AppSidebar />
-        
-        <main className="flex-1 relative flex flex-col h-screen overflow-hidden">
+        <main className="flex-1 relative flex flex-col h-screen overflow-hidden rounded-3xl m-2 bg-fixed bg-[url('/aurura_bg.jpeg')] bg-cover bg-center bg-no-repeat">
+          {/* Blurred background with tint */}
+          <div className="absolute inset-0 backdrop-blur-[2px] bg-black/60"></div>
           <Header />
           
           {/* Canvas */}
-          <div id="canvas" className="relative z-10 flex flex-col flex-1 overflow-y-auto">
+          <div id="canvas" className="relative flex flex-col flex-1 overflow-y-auto">
             <Outlet />
 
             {/* Footer */}
