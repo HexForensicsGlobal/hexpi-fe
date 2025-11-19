@@ -420,7 +420,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
           )}
 
           <div className="md:col-span-4">
-            <Button type="submit" size="lg" className="w-full text-base mt-2">
+            <Button type="submit" size="lg" className="w-full text-base mt-2 md:mt-0" disabled={status === "searching"}>
                 {status === "searching" ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" /> Searching records
