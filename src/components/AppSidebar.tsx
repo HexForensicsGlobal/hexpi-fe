@@ -80,13 +80,16 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground hover:bg-sidebar-accent">
-                  <div className="flex items-start gap-2">
-                    <Home className="w-4 h-4 mt-0.5" />
-                    <div className="text-xs">
-                      <div className="font-medium">New modes, group chats,</div>
-                      <div className="text-muted-foreground">better memory, and a face to talk to</div>
+                    <div className="flex items-start gap-2 w-full">
+                      <FileText className="w-4 h-4 mt-0.5" aria-hidden="true" />
+                      <div className="text-xs flex-1">
+                        <div className="font-medium">Release notes</div>
+                        <div className="text-muted-foreground">v1.2 — AI beta</div>
+                      </div>
+                      <span className="ml-auto inline-flex items-center rounded-full bg-sidebar-accent px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                        NEW
+                      </span>
                     </div>
-                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
