@@ -2,11 +2,14 @@ import { Button } from "@/components/ui/button";
 
 export function QuickActions() {
   const actions = [
-    "Write a first draft",
-    "Get advice",
-    "Learn something new",
-    // "Create an image",
-    "Make a plan",
+    "Analyze search results",
+    "Generate investigation summary",
+    "Cross-reference findings",
+    "Identify key connections",
+    "Create evidence timeline",
+    "Predict investigation leads",
+    "Summarize case details",
+    "Research background information",
   ];
 
   return (
@@ -15,7 +18,7 @@ export function QuickActions() {
         <Button
           key={action}
           variant="secondary"
-          className="rounded-full bg-secondary/60 hover:bg-secondary/80 backdrop-blur-sm border border-border/30 text-foreground text-sm px-5 py-2"
+          className="rounded-full bg-secondary/60 hover:bg-secondary/80 backdrop-blur-sm border border-border/30 text-muted-foreground text-xs px-5 py-2"
         >
           {action}
         </Button>

@@ -22,7 +22,7 @@ const Header = () => {
     navigate("/app/ai-search", { state: { query: trimmed } });
   };
   return (
-    <header className="w-full z-50 h-auto flex items-center backdrop-blur-md border-b border-white/5 px-4 py-2">
+    <header className="w-full z-50 h-auto flex items-center backdrop-blur-md px-4 py-2">
       <div className="flex items-center">
         <SidebarTrigger className="text-foreground" />
       </div>

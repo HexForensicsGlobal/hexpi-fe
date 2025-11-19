@@ -10,7 +10,7 @@ const Index = () => {
         <AppSidebar />
         <main className="flex-1 relative flex flex-col h-screen overflow-hidden rounded-3xl m-2 bg-fixed bg-[url('/aurura_bg.jpeg')] bg-cover bg-center bg-no-repeat">
           {/* Blurred background with tint */}
-          <div className="absolute inset-0 backdrop-blur-[2px] bg-black/60"></div>
+          <div className="absolute inset-0 backdrop-blur-[100px] bg-black/60"></div>
           <Header />
           
           {/* Canvas */}
