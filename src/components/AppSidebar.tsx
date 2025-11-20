@@ -87,7 +87,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={tab.id}>
                     <SidebarMenuButton
-                      tooltip={tab.title}
+                      tooltip={{ children: tab.title, className: "text-xs text-muted-foreground" }}
                       className={cn(
                         "text-sidebar-foreground hover:bg-sidebar-accent",
                         isActive && "bg-sidebar-accent",

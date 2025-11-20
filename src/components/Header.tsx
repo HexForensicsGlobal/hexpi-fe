@@ -5,6 +5,7 @@ import { Settings, Bell, Sparkles, Search, ArrowUpRight, ChevronRight } from "lu
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Header = () => {
   const { state } = useSidebar();
@@ -24,7 +25,14 @@ const Header = () => {
   return (
     <header className="w-full z-50 h-auto flex items-center backdrop-blur-md px-4 py-2">
       <div className="flex items-center">
-        <SidebarTrigger className="text-foreground" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SidebarTrigger className="text-foreground" />
+          </TooltipTrigger>
+          <TooltipContent side="right" className="text-xs text-muted-foreground">
+            Toggle Sidebar (Ctrl+B)
+          </TooltipContent>
+        </Tooltip>
       </div>
       
       {/* Quick Search */} 
