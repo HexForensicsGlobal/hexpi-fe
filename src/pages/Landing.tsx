@@ -240,7 +240,7 @@ const Landing = () => {
           <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {[
               { icon: Camera, label: "Visual identifiers" },
-              { icon: ScrollText, label: "Company fillings" },
+              { icon: ScrollText, label: "Company filings" },
               { icon: School, label: "Academic credentials" },
               { icon: Landmark, label: "Deeds & assets" },
               { icon: Fingerprint, label: "Regulatory actions" },
