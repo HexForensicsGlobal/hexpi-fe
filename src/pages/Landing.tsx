@@ -33,12 +33,15 @@ import {
   Twitter,
   Linkedin,
   Globe,
+  Menu,
+  X,
 } from "lucide-react";
 
 const Landing = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [stateFilter, setStateFilter] = useState("All States");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentYear = new Date().getFullYear();
   const navigate = useNavigate();
 
@@ -57,27 +60,78 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-[rgba(2,8,23,0.9)] to-black text-foreground">
-      <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-6 pb-6 pt-10 text-sm text-foreground/80">
-        <div className="flex items-center gap-3">
-          <img src="/HEX-PI_logo.svg" alt="Hex PIP" className="h-10 w-10" />
+      <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 sm:px-6 pb-6 pt-10 text-sm text-foreground/80">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <img src="/HEX-PI_logo.svg" alt="Hex PIP" className="h-8 w-8 sm:h-10 sm:w-10" />
           <div>
-            <p className="text-base font-semibold text-foreground">Hex PIP</p>
+            <p className="text-sm sm:text-base font-semibold text-foreground">Hex PIP</p>
             <p className="text-xs text-foreground/60">Investigative Intelligence Cloud</p>
           </div>
         </div>
-        <nav className="hidden gap-6 sm:flex">
+        <nav className="hidden gap-6 md:flex">
           <Link to="/" className="hover:text-primary">Home</Link>
           <Link to="/results" className="hover:text-primary">Results</Link>
           <Link to="/about" className="hover:text-primary">About</Link>
           <a href="#faq" className="hover:text-primary">FAQ</a>
         </nav>
-        <div className="flex gap-3">
+        <div className="hidden gap-3 md:flex">
           <Button variant="outline" className="border-white/20 text-foreground hover:text-background">
             Login
           </Button>
           <Button className="bg-primary">Sign up</Button>
         </div>
+        <button
+          className="md:hidden flex items-center justify-center p-2 rounded-md hover:bg-white/10 transition-colors"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
       </header>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-[88px] left-0 right-0 z-50 mx-auto w-full max-w-7xl px-4 sm:px-6">
+          <div className="rounded-lg border border-white/10 bg-black/95 backdrop-blur-xl p-4 shadow-2xl">
+            <nav className="flex flex-col gap-4 mb-4">
+              <Link 
+                to="/" 
+                className="hover:text-primary py-2 px-3 rounded-md hover:bg-white/5 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                to="/results" 
+                className="hover:text-primary py-2 px-3 rounded-md hover:bg-white/5 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Results
+              </Link>
+              <Link 
+                to="/about" 
+                className="hover:text-primary py-2 px-3 rounded-md hover:bg-white/5 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <a 
+                href="#faq" 
+                className="hover:text-primary py-2 px-3 rounded-md hover:bg-white/5 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                FAQ
+              </a>
+            </nav>
+            <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
+              <Button variant="outline" className="w-full border-white/20 text-foreground hover:text-background">
+                Login
+              </Button>
+              <Button className="w-full bg-primary">Sign up</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mx-auto mt-2 flex w-full max-w-6xl flex-col gap-12 px-6 pb-20">
         <section className="text-center">
