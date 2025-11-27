@@ -11,7 +11,7 @@ import type { SearchResult } from "@/services/resultFilter";
 
 interface SearchResultsProps {
   status: "idle" | "searching" | "success";
-  lastQuery: { firstName: string; lastName: string; stateFilter: string } | null;
+  lastQuery: { query: string; stateFilter: string } | null;
   results: SearchResult[];
 }
 
@@ -31,7 +31,7 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
           </Badge>
         </div>
         <p className="text-sm text-foreground/70">
-          Aggregated candidates for {lastQuery.firstName} {lastQuery.lastName} • {lastQuery.stateFilter}
+          Aggregated candidates for "{lastQuery.query}" • {lastQuery.stateFilter}
         </p>
       </div>
       

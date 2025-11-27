@@ -8,8 +8,7 @@ import { filterCandidateRecords, type SearchResult } from "@/services/resultFilt
 
 interface PrefillState {
   prefill?: {
-    firstName?: string;
-    lastName?: string;
+    query?: string;
     stateFilter?: string;
   };
 }
@@ -20,53 +19,34 @@ const KeywordSearchHome = () => {
 
   const [status, setStatus] = useState<"idle" | "searching" | "success">("idle");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [lastQuery, setLastQuery] = useState<{ firstName: string; lastName: string; stateFilter: string } | null>(null);
+  const [lastQuery, setLastQuery] = useState<{ query: string; stateFilter: string } | null>(null);
   const timeoutId = useRef<number>();
   const [prefillApplied, setPrefillApplied] = useState(false);
 
   const initialData = prefill ? {
-    searchType: "person" as const,
-    firstName: prefill.firstName ?? "",
-    lastName: prefill.lastName ?? "",
+    searchType: "multi" as const,
+    query: prefill.query ?? "",
     stateFilter: prefill.stateFilter ?? "All States",
   } : undefined;
 
   const runSearch = useCallback(
-    (data: { searchType: string; firstName: string; lastName: string; stateFilter: string; query?: string; selectedEntities?: string[] }) => {
+    (data: { searchType: string; query: string; stateFilter: string; selectedEntities?: string[] }) => {
       const trimmed = {
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
+        query: data.query.trim(),
         stateFilter: data.stateFilter,
-        query: data.query,
       };
 
       setStatus("searching");
 
       timeoutId.current = window.setTimeout(() => {
-        let fName = trimmed.firstName;
-        let lName = trimmed.lastName;
-
-        if (data.searchType === "multi" && trimmed.query) {
-            const parts = trimmed.query.split(" ");
-            if (parts.length >= 2) {
-                fName = parts[0];
-                lName = parts.slice(1).join(" ");
-            } else {
-                fName = trimmed.query;
-                lName = "";
-            }
-        }
-
         const filtered = filterCandidateRecords(
-          fName,
-          lName,
+          trimmed.query,
           trimmed.stateFilter
         );
 
         setResults(filtered);
         setLastQuery({
-            firstName: fName,
-            lastName: lName,
+            query: trimmed.query,
             stateFilter: trimmed.stateFilter
         });
         setStatus("success");
@@ -75,7 +55,7 @@ const KeywordSearchHome = () => {
     [],
   );
 
-  const handleSubmit = (data: { searchType: string; firstName: string; lastName: string; stateFilter: string; query?: string; selectedEntities?: string[] }) => {
+  const handleSubmit = (data: { searchType: string; query: string; stateFilter: string; selectedEntities?: string[] }) => {
     runSearch(data);
   };
 
@@ -91,11 +71,10 @@ const KeywordSearchHome = () => {
     if (!prefillApplied || !prefill) {
       return;
     }
-    if (prefill.firstName && prefill.lastName) {
+    if (prefill.query) {
       runSearch({
-        searchType: "person",
-        firstName: prefill.firstName,
-        lastName: prefill.lastName,
+        searchType: "multi",
+        query: prefill.query,
         stateFilter: prefill.stateFilter ?? "All States",
       });
     }
@@ -111,11 +90,11 @@ const KeywordSearchHome = () => {
           <div>
             {/* Page Header */}
             <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <Badge className="bg-experimental-green/40 text-experimental-green-foreground hover:bg-experimental-green/40">
                   Keyword Search
                 </Badge>
-                {prefill?.firstName || prefill?.lastName ? (
+                {prefill?.query ? (
                   <Badge variant="outline" className="border-emerald-400/50 text-emerald-300">
                     Prefilled
                   </Badge>

@@ -10,19 +10,23 @@ export interface SearchResult {
   updated: string;
 }
 
-// Current Search Engine - Filters candidate records based on name and state
+// Current Search Engine - Filters candidate records based on query and state
 export const filterCandidateRecords = (
-  firstName: string,
-  lastName: string,
+  query: string,
   stateFilter: string
 ): SearchResult[] => {
+  const queryTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  
+  if (queryTerms.length === 0) {
+    return candidateRecords;
+  }
+
   const filtered = candidateRecords.filter((record) => {
     const name = record.name.toLowerCase();
-    const matchesFirst = name.includes(firstName.toLowerCase());
-    const matchesLast = name.includes(lastName.toLowerCase());
+    const matchesQuery = queryTerms.every((term) => name.includes(term));
     const matchesState =
       stateFilter === "All States" || record.location.includes(stateFilter);
-    return matchesFirst && matchesLast && matchesState;
+    return matchesQuery && matchesState;
   });
 
   return filtered.length > 0 ? filtered : candidateRecords;

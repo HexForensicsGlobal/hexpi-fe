@@ -38,8 +38,7 @@ import {
 } from "lucide-react";
 
 const Landing = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [query, setQuery] = useState("");
   const [stateFilter, setStateFilter] = useState("All States");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentYear = new Date().getFullYear();
@@ -50,8 +49,7 @@ const Landing = () => {
     navigate("/app/keyword-search", {
       state: {
         prefill: {
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
+          query: query.trim(),
           stateFilter,
         },
       },
@@ -160,30 +158,19 @@ const Landing = () => {
           <div className="relative mx-auto mb-5 w-full max-w-xl rounded-full bg-black/60 px-4 py-2 text-center text-sm font-medium text-foreground/80">
             Kick off a trace — pinpoint a person or business in under 60 seconds
           </div>
-          <form className="grid gap-4 md:grid-cols-3" onSubmit={handleSubmit}>
+          <form className="grid gap-4 md:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="firstName">First name</Label>
+              <Label htmlFor="query">Search query</Label>
               <Input
-                id="firstName"
-                placeholder="e.g. Ahmed"
-                value={firstName}
+                id="query"
+                placeholder="e.g. Ahmed Ikenna"
+                value={query}
                 onChange={(event) => {
-                  setFirstName(event.target.value);
+                  setQuery(event.target.value);
                 }}
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="lastName">Last name</Label>
-              <Input
-                id="lastName"
-                placeholder="e.g. Ikenna"
-                value={lastName}
-                onChange={(event) => {
-                  setLastName(event.target.value);
-                }}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 w-48">
               <Label htmlFor="state">State</Label>
               <Select value={stateFilter} onValueChange={setStateFilter} disabled>
                 <SelectTrigger id="state">
@@ -198,7 +185,7 @@ const Landing = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <Button type="submit" size="lg" className="w-full text-base">
                 Launch background sweep  <ArrowUpRight className="mr-1 h-3 w-3" />
               </Button>

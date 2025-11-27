@@ -33,10 +33,8 @@ import { Badge } from "../ui/badge";
 
 export interface SearchFormData {
   searchType: "person" | "phone" | "email" | "address" | "business" | "multi";
-  firstName: string;
-  lastName: string;
+  query: string;
   stateFilter: string;
-  query?: string;
   selectedEntities?: string[];
   phone?: string;
   email?: string;
@@ -50,7 +48,7 @@ interface SearchFormProps {
   errorMessage?: string;
   onSubmit: (data: SearchFormData) => void;
   initialData?: Partial<SearchFormData>;
-  lastQuery?: { firstName: string; lastName: string; stateFilter: string } | null;
+  lastQuery?: { query: string; stateFilter: string } | null;
 }
 
 const searchTabs = [
@@ -66,8 +64,6 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
   const [searchType, setSearchType] = useState<"person" | "phone" | "email" | "address" | "business" | "multi">(
     initialData?.searchType ?? "multi"
   );
-  const [firstName, setFirstName] = useState(initialData?.firstName ?? "");
-  const [lastName, setLastName] = useState(initialData?.lastName ?? "");
   const [stateFilter, setStateFilter] = useState(initialData?.stateFilter ?? "All States");
   const [query, setQuery] = useState(initialData?.query ?? "");
   const [selectedEntities, setSelectedEntities] = useState<string[]>(initialData?.selectedEntities ?? ["person", "business"]);
@@ -77,18 +73,16 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
   const [city, setCity] = useState(initialData?.city ?? "");
   const [businessName, setBusinessName] = useState(initialData?.businessName ?? "");
   const [submittedData, setSubmittedData] = useState<SearchFormData | null>(null);
-  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; query?: string; phone?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ query?: string; phone?: string; email?: string }>({});
   const hasAutoSubmitted = useRef(false);
 
   useEffect(() => {
-    if (initialData && initialData.firstName && initialData.lastName && !hasAutoSubmitted.current) {
+    if (initialData && initialData.query && !hasAutoSubmitted.current) {
       hasAutoSubmitted.current = true;
       const data: SearchFormData = {
-        searchType: initialData.searchType ?? "person",
-        firstName: initialData.firstName,
-        lastName: initialData.lastName,
-        stateFilter: initialData.stateFilter ?? "All States",
+        searchType: initialData.searchType ?? "multi",
         query: initialData.query,
+        stateFilter: initialData.stateFilter ?? "All States",
         selectedEntities: initialData.selectedEntities,
         phone: initialData.phone,
         email: initialData.email,
@@ -105,8 +99,6 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
     event.preventDefault();
 
     const trimmed = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
       stateFilter,
       query: query.trim(),
       phone: phone.trim(),
@@ -116,15 +108,10 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
       businessName: businessName.trim(),
     };
 
-    const newErrors: { firstName?: string; lastName?: string; query?: string; phone?: string; email?: string } = {};
+    const newErrors: { query?: string; phone?: string; email?: string } = {};
     
-    if (searchType === "person") {
-        if (!trimmed.firstName) newErrors.firstName = "First name is required";
-        if (!trimmed.lastName) newErrors.lastName = "Last name is required";
-    }
-    
-    if (searchType === "multi" && !trimmed.query) {
-        newErrors.query = "Search terms are required";
+    if ((searchType === "person" || searchType === "multi") && !trimmed.query) {
+        newErrors.query = "Search query is required";
     }
 
     if (searchType === "phone") {
@@ -151,10 +138,8 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
 
     const data: SearchFormData = {
       searchType,
-      firstName: trimmed.firstName,
-      lastName: trimmed.lastName,
-      stateFilter: trimmed.stateFilter,
       query: trimmed.query,
+      stateFilter: trimmed.stateFilter,
       selectedEntities,
       phone: trimmed.phone,
       email: trimmed.email,
@@ -247,35 +232,21 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
           )}
 
           {searchType === "person" && (
-            <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-sm font-medium">
-                  First Name<span className="text-destructive">*</span>
+            <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-3 space-y-2">
+                <Label htmlFor="personQuery" className="text-sm font-medium">
+                  Person Name<span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="firstName"
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                  placeholder="Enter First Name"
-                  className={errors.firstName ? "border-destructive focus-visible:ring-destructive" : undefined}
+                  id="personQuery"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Enter full name (e.g. John Smith)"
+                  className={errors.query ? "border-destructive focus-visible:ring-destructive" : undefined}
                 />
-                {errors.firstName && (
-                  <p className="text-xs text-destructive">{errors.firstName}</p>
+                {errors.query && (
+                  <p className="text-xs text-destructive">{errors.query}</p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-sm font-medium">
-                  Last Name<span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="lastName"
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                  placeholder="Enter Last Name"
-                  className={errors.lastName ? "border-destructive focus-visible:ring-destructive" : undefined}
-                />
-                {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
               </div>
 
               <div className="space-y-2">
@@ -503,8 +474,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
                         <div className="space-y-2">
                             <div className="p-2.5 rounded-lg bg-black/20 border border-white/5 flex items-center justify-between">
                                 <div className="font-mono text-xs text-foreground/90">
-                                    {submittedData.searchType === 'multi' && submittedData.query && `"${submittedData.query}"`}
-                                    {submittedData.searchType === 'person' && `${submittedData.firstName} ${submittedData.lastName}`}
+                                    {(submittedData.searchType === 'multi' || submittedData.searchType === 'person') && submittedData.query && `"${submittedData.query}"`}
                                     {submittedData.searchType === 'phone' && submittedData.phone}
                                     {submittedData.searchType === 'email' && submittedData.email}
                                     {submittedData.searchType === 'address' && `${submittedData.street}, ${submittedData.city}`}
