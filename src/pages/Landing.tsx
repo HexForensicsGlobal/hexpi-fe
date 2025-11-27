@@ -132,8 +132,9 @@ const Landing = () => {
           </div>
         </div>
       )}
-
-      <div className="mx-auto mt-2 flex w-full max-w-6xl flex-col gap-12 px-6 pb-20">
+      
+      {/* Hero*/}
+      <div className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-6xl flex-col justify-center gap-12 px-6 pb-20">
         <section className="text-center">
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-foreground/60">
             <Badge variant="outline" className="border-white/15 bg-white/5 text-foreground/80">
@@ -184,7 +185,7 @@ const Landing = () => {
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="state">State</Label>
-              <Select value={stateFilter} onValueChange={setStateFilter}>
+              <Select value={stateFilter} onValueChange={setStateFilter} disabled>
                 <SelectTrigger id="state">
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
@@ -211,6 +212,9 @@ const Landing = () => {
             <p>Powered by the <span className="font-bold">Hex Forensics</span> Entity Graph.</p>
           </div>
         </section>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 pb-20">
 
         <section className="relative grid gap-6 rounded-xl border-t border-white/10 bg-gradient-to-r from-primary/20 to-emerald-500/20 p-6 text-left shadow-xl backdrop-blur-xl md:grid-cols-[1fr_auto]">
           <div>
