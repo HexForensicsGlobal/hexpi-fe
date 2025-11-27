@@ -58,6 +58,7 @@ class ApiService implements IApiService {
         search_type: params.search_type || 'both',
         offset: params.offset || 0,
         limit: params.limit || 100,
+        related_limit: params.related_limit ?? 20,
       },
     });
     return response.data;

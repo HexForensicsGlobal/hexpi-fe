@@ -12,7 +12,7 @@
           "Search"
         ],
         "summary": "Keyword Search Get",
-        "description": "Perform keyword search via GET request (for simple queries).\n\n- **q**: Search term to look for\n- **search_type**: Type of entities to search (organizations, affiliates, or both)\n- **offset**: Number of results to skip per entity type for pagination (default: 0)\n- **limit**: Maximum number of results per entity type (default: 100, max: 1000)",
+        "description": "Perform keyword search via GET request.\n\nFor multi-word queries (e.g., \"fola bankole\"), uses tiered search:\n- **Primary results**: Records where ALL search tokens match (strict AND logic)\n- **Related results**: Records where 2+ tokens match but not all (partial matches with relevance scoring)\n\nParameters:\n- **q**: Search term(s) to look for. Multi-word queries are tokenized.\n- **search_type**: Type of entities to search (organizations, affiliates, or both)\n- **offset**: Number of primary results to skip for pagination (default: 0)\n- **limit**: Maximum number of primary results (default: 100, max: 1000)\n- **related_limit**: Maximum related results for \"Show Others\" feature (default: 20, max: 100)\n\nResponse includes:\n- `organizations`, `affiliates`: Primary results (all tokens match)\n- `related_organizations`, `related_affiliates`: Partial matches sorted by `match_score`",
         "operationId": "keyword_search_get_api_v1_search_keyword_get",
         "parameters": [
           {
@@ -23,18 +23,22 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 500,
-              "description": "Search query",
+              "description": "Search query. Multi-word queries are tokenized for tiered matching.",
               "title": "Q"
             },
-            "description": "Search query"
+            "description": "Search query. Multi-word queries are tokenized for tiered matching."
           },
           {
             "name": "search_type",
             "in": "query",
             "required": false,
             "schema": {
+              "enum": [
+                "organizations",
+                "affiliates",
+                "both"
+              ],
               "type": "string",
-              "pattern": "^(organizations|affiliates|both)$",
               "description": "Type of entities to search",
               "default": "both",
               "title": "Search Type"
@@ -55,11 +59,11 @@
                   "type": "null"
                 }
               ],
-              "description": "Number of results to skip",
+              "description": "Number of primary results to skip for pagination",
               "default": 0,
               "title": "Offset"
             },
-            "description": "Number of results to skip"
+            "description": "Number of primary results to skip for pagination"
           },
           {
             "name": "limit",
@@ -76,11 +80,32 @@
                   "type": "null"
                 }
               ],
-              "description": "Maximum number of results",
+              "description": "Maximum number of primary results to return",
               "default": 100,
               "title": "Limit"
             },
-            "description": "Maximum number of results"
+            "description": "Maximum number of primary results to return"
+          },
+          {
+            "name": "related_limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of related/partial-match results to return. Only applies to multi-word queries.",
+              "default": 20,
+              "title": "Related Limit"
+            },
+            "description": "Maximum number of related/partial-match results to return. Only applies to multi-word queries."
           }
         ],
         "responses": {
@@ -140,7 +165,8 @@
                 "type": "null"
               }
             ],
-            "title": "Entry Id"
+            "title": "Entry Id",
+            "description": "Database entry ID"
           },
           "organization_id": {
             "anyOf": [
@@ -151,7 +177,8 @@
                 "type": "null"
               }
             ],
-            "title": "Organization Id"
+            "title": "Organization Id",
+            "description": "Associated organization ID"
           },
           "surname": {
             "anyOf": [
@@ -162,7 +189,8 @@
                 "type": "null"
               }
             ],
-            "title": "Surname"
+            "title": "Surname",
+            "description": "Last name"
           },
           "firstname": {
             "anyOf": [
@@ -173,7 +201,8 @@
                 "type": "null"
               }
             ],
-            "title": "Firstname"
+            "title": "Firstname",
+            "description": "First name"
           },
           "otherName": {
             "anyOf": [
@@ -184,7 +213,8 @@
                 "type": "null"
               }
             ],
-            "title": "Othername"
+            "title": "Othername",
+            "description": "Middle/other names"
           },
           "email": {
             "anyOf": [
@@ -195,7 +225,8 @@
                 "type": "null"
               }
             ],
-            "title": "Email"
+            "title": "Email",
+            "description": "Contact email"
           },
           "phoneNumber": {
             "anyOf": [
@@ -206,7 +237,8 @@
                 "type": "null"
               }
             ],
-            "title": "Phonenumber"
+            "title": "Phonenumber",
+            "description": "Phone number"
           },
           "occupation": {
             "anyOf": [
@@ -217,7 +249,8 @@
                 "type": "null"
               }
             ],
-            "title": "Occupation"
+            "title": "Occupation",
+            "description": "Occupation"
           },
           "city": {
             "anyOf": [
@@ -228,7 +261,8 @@
                 "type": "null"
               }
             ],
-            "title": "City"
+            "title": "City",
+            "description": "City"
           },
           "state": {
             "anyOf": [
@@ -239,7 +273,8 @@
                 "type": "null"
               }
             ],
-            "title": "State"
+            "title": "State",
+            "description": "State"
           },
           "nationality": {
             "anyOf": [
@@ -250,24 +285,25 @@
                 "type": "null"
               }
             ],
-            "title": "Nationality"
+            "title": "Nationality",
+            "description": "Nationality"
+          },
+          "match_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Score",
+            "description": "Relevance score for related results. Name column matches (surname, firstname, otherName) = +2 points, other columns = +1 point. Null for primary results and single-token queries."
           }
         },
         "type": "object",
-        "required": [
-          "entry_id",
-          "organization_id",
-          "surname",
-          "firstname",
-          "otherName",
-          "email",
-          "phoneNumber",
-          "occupation",
-          "city",
-          "state",
-          "nationality"
-        ],
-        "title": "AffiliateResult"
+        "title": "AffiliateResult",
+        "description": "Affiliate search result with optional relevance score."
       },
       "HTTPValidationError": {
         "properties": {
@@ -293,7 +329,8 @@
                 "type": "null"
               }
             ],
-            "title": "Entry Id"
+            "title": "Entry Id",
+            "description": "Database entry ID"
           },
           "organization_id": {
             "anyOf": [
@@ -304,7 +341,8 @@
                 "type": "null"
               }
             ],
-            "title": "Organization Id"
+            "title": "Organization Id",
+            "description": "Organization ID"
           },
           "rcNumber": {
             "anyOf": [
@@ -315,7 +353,8 @@
                 "type": "null"
               }
             ],
-            "title": "Rcnumber"
+            "title": "Rcnumber",
+            "description": "Registration/RC number"
           },
           "approvedName": {
             "anyOf": [
@@ -326,7 +365,8 @@
                 "type": "null"
               }
             ],
-            "title": "Approvedname"
+            "title": "Approvedname",
+            "description": "Approved organization name"
           },
           "objectives": {
             "anyOf": [
@@ -337,7 +377,8 @@
                 "type": "null"
               }
             ],
-            "title": "Objectives"
+            "title": "Objectives",
+            "description": "Business objectives"
           },
           "address": {
             "anyOf": [
@@ -348,7 +389,8 @@
                 "type": "null"
               }
             ],
-            "title": "Address"
+            "title": "Address",
+            "description": "Physical address"
           },
           "state": {
             "anyOf": [
@@ -359,7 +401,8 @@
                 "type": "null"
               }
             ],
-            "title": "State"
+            "title": "State",
+            "description": "State"
           },
           "city": {
             "anyOf": [
@@ -370,7 +413,8 @@
                 "type": "null"
               }
             ],
-            "title": "City"
+            "title": "City",
+            "description": "City"
           },
           "email": {
             "anyOf": [
@@ -381,7 +425,8 @@
                 "type": "null"
               }
             ],
-            "title": "Email"
+            "title": "Email",
+            "description": "Contact email"
           },
           "status": {
             "anyOf": [
@@ -392,7 +437,8 @@
                 "type": "null"
               }
             ],
-            "title": "Status"
+            "title": "Status",
+            "description": "Registration status"
           },
           "registrationDate": {
             "anyOf": [
@@ -403,66 +449,88 @@
                 "type": "null"
               }
             ],
-            "title": "Registrationdate"
+            "title": "Registrationdate",
+            "description": "Registration date"
+          },
+          "match_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Score",
+            "description": "Relevance score for related results. Name column matches = +2 points, other columns = +1 point. Null for primary results and single-token queries."
           }
         },
         "type": "object",
-        "required": [
-          "entry_id",
-          "organization_id",
-          "rcNumber",
-          "approvedName",
-          "objectives",
-          "address",
-          "state",
-          "city",
-          "email",
-          "status",
-          "registrationDate"
-        ],
-        "title": "OrganizationResult"
+        "title": "OrganizationResult",
+        "description": "Organization search result with optional relevance score."
       },
       "SearchResponse": {
         "properties": {
           "query": {
             "type": "string",
-            "title": "Query"
+            "title": "Query",
+            "description": "Original search query"
           },
           "query_time_ms": {
             "type": "number",
-            "title": "Query Time Ms"
+            "title": "Query Time Ms",
+            "description": "Query execution time in milliseconds"
           },
           "offset": {
             "type": "integer",
-            "title": "Offset"
+            "title": "Offset",
+            "description": "Pagination offset used"
           },
           "limit": {
             "type": "integer",
-            "title": "Limit"
+            "title": "Limit",
+            "description": "Limit used for primary results"
           },
           "total_matched_organizations": {
             "type": "integer",
             "title": "Total Matched Organizations",
+            "description": "Total organizations matching ALL search tokens",
             "default": 0
           },
           "total_matched_affiliates": {
             "type": "integer",
             "title": "Total Matched Affiliates",
+            "description": "Total affiliates matching ALL search tokens",
+            "default": 0
+          },
+          "total_related_organizations": {
+            "type": "integer",
+            "title": "Total Related Organizations",
+            "description": "Total organizations with partial token matches (2+ but not all)",
+            "default": 0
+          },
+          "total_related_affiliates": {
+            "type": "integer",
+            "title": "Total Related Affiliates",
+            "description": "Total affiliates with partial token matches (2+ but not all)",
             "default": 0
           },
           "total_in_response": {
             "type": "integer",
             "title": "Total In Response",
+            "description": "Total primary results in this response",
             "default": 0
           },
           "organizations_in_response": {
             "type": "integer",
             "title": "Organizations In Response",
+            "description": "Number of primary organization results in this response",
             "default": 0
           },
           "affiliates_in_response": {
             "type": "integer",
             "title": "Affiliates In Response",
+            "description": "Number of primary affiliate results in this response",
             "default": 0
           },
           "organizations": {
@@ -471,6 +539,7 @@
             },
             "type": "array",
             "title": "Organizations",
+            "description": "Primary organization results where all search tokens match",
             "default": []
           },
           "affiliates": {
@@ -479,6 +548,25 @@
             },
             "type": "array",
             "title": "Affiliates",
+            "description": "Primary affiliate results where all search tokens match",
+            "default": []
+          },
+          "related_organizations": {
+            "items": {
+              "$ref": "#/components/schemas/OrganizationResult"
+            },
+            "type": "array",
+            "title": "Related Organizations",
+            "description": "Related organization results with partial token matches. Sorted by match_score descending. Use for 'Show Others' feature.",
+            "default": []
+          },
+          "related_affiliates": {
+            "items": {
+              "$ref": "#/components/schemas/AffiliateResult"
+            },
+            "type": "array",
+            "title": "Related Affiliates",
+            "description": "Related affiliate results with partial token matches. Sorted by match_score descending. Use for 'Show Others' feature.",
             "default": []
           }
         },
@@ -489,7 +577,8 @@
           "offset",
           "limit"
         ],
-        "title": "SearchResponse"
+        "title": "SearchResponse",
+        "description": "Search response containing primary and related results.\n\nPrimary results (organizations, affiliates): Records where ALL search tokens match.\nRelated results (related_organizations, related_affiliates): Records where 2+ tokens match \nbut not all. These are sorted by match_score (highest first) and represent \"Show Others\" candidates.\n\nFor single-token queries, only primary fields are populated; related fields are empty."
       },
       "ValidationError": {
         "properties": {
