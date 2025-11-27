@@ -202,7 +202,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
                         Select Entities <span className="text-xs text-muted-foreground font-normal ml-1">(Select all that apply)</span>
                     </Label>
                     <ToggleGroup type="multiple" variant="outline" value={selectedEntities} onValueChange={setSelectedEntities} className="justify-start flex-wrap gap-2">
-                        {searchTabs.filter(t => t.id !== 'multi').map(tab => {
+                        {searchTabs.filter(t => t.id === 'person' || t.id === 'business').map(tab => {
                             const Icon = tab.icon;
                             return (
                                 <ToggleGroupItem key={tab.id} value={tab.id} aria-label={tab.label} className="gap-2 data-[state=on]:bg-primary/50 data-[state=on]:border-primary/50 border-white/10 ">
@@ -229,7 +229,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="multiState" className="text-sm font-medium">State</Label>
-                        <Select value={stateFilter} onValueChange={setStateFilter}>
+                        <Select value={stateFilter} onValueChange={setStateFilter} disabled>
                         <SelectTrigger id="multiState">
                             <SelectValue placeholder="All States" />
                         </SelectTrigger>
@@ -280,7 +280,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
 
               <div className="space-y-2">
                 <Label htmlFor="stateFilter" className="text-sm font-medium">State</Label>
-                <Select value={stateFilter} onValueChange={setStateFilter}>
+                <Select value={stateFilter} onValueChange={setStateFilter} disabled>
                   <SelectTrigger id="stateFilter">
                     <SelectValue placeholder="All States" />
                   </SelectTrigger>
@@ -361,7 +361,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
               </div>
               <div className="space-y-2">
                 <Label htmlFor="addressState" className="text-sm font-medium">State</Label>
-                <Select value={stateFilter} onValueChange={setStateFilter}>
+                <Select value={stateFilter} onValueChange={setStateFilter} disabled>
                   <SelectTrigger id="addressState">
                     <SelectValue placeholder="All States" />
                   </SelectTrigger>
@@ -403,7 +403,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
               </div>
               <div className="space-y-2">
                 <Label htmlFor="businessState" className="text-sm font-medium">State</Label>
-                <Select value={stateFilter} onValueChange={setStateFilter}>
+                <Select value={stateFilter} onValueChange={setStateFilter} disabled>
                   <SelectTrigger id="businessState">
                     <SelectValue placeholder="All States" />
                   </SelectTrigger>
@@ -419,6 +419,7 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
             </>
           )}
 
+          {/* Search button */}
           <div className="md:col-span-4">
             <Button type="submit" size="lg" className="w-full text-base mt-2 md:mt-0" disabled={status === "searching"}>
                 {status === "searching" ? (
@@ -434,7 +435,8 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
           </div>
         </form>
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4">
+        {/* Usage agreement */}
+        {/* <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4">
           <div className="flex items-start gap-3 text-xs text-foreground/70">
             <ShieldCheck className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
             <div>
@@ -444,21 +446,22 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
+
       </div>
 
       {/* Search Activity & System Status */}
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-6 grid gap-3 md:grid-cols-3">
         {/* Activity Feed */}
-        <div className="md:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl relative overflow-hidden">
+        <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl relative overflow-hidden">
             {status === "searching" && (
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer bg-[length:200%_100%]" />
             )}
             
             <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                    <Activity className={`h-5 w-5 ${status === 'searching' ? 'text-primary animate-pulse' : status === 'error' ? 'text-destructive' : 'text-muted-foreground'}`} />
-                    <h3 className="font-semibold text-lg">
+                <div className="flex items-center gap-2 mb-3">
+                    <Activity className={`h-4 w-4 ${status === 'searching' ? 'text-primary animate-pulse' : status === 'error' ? 'text-destructive' : 'text-muted-foreground'}`} />
+                    <h3 className="font-medium text-sm">
                         {status === 'idle' && "Ready for Search"}
                         {status === 'searching' && "Processing Request..."}
                         {status === 'success' && "Search Complete"}
@@ -466,132 +469,108 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
                     </h3>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {status === 'idle' && (
-                        <div className="space-y-4">
-                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-foreground/80">System Ready</span>
-                                    {/* <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> */}
-                                </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex-1 p-2.5 rounded-lg bg-white/5 border border-white/10">
                                 <p className="text-muted-foreground text-xs">
-                                    Secure connection established to HexPi core. Neural search engine initialized and ready for query parameters.
+                                    Secure connection established to HexPi core. <br /> Neural search engine initialized and ready for query parameters.
                                 </p>
                             </div>
-                            
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3 rounded-lg bg-black/20 border border-white/5">
-                                    <div className="text-xs text-muted-foreground mb-1">Search Protocol</div>
-                                    <div className="text-sm font-mono text-foreground/90">Multi-Vector v2</div>
+                            <div className="flex gap-2">
+                                <div className="p-2 rounded-lg bg-black/20 border border-white/5 text-center">
+                                    <div className="text-[10px] text-muted-foreground">Protocol</div>
+                                    <div className="text-xs font-mono text-foreground/90">MV-2</div>
                                 </div>
-                                <div className="p-3 rounded-lg bg-black/20 border border-white/5">
-                                    <div className="text-xs text-muted-foreground mb-1">Encryption</div>
-                                    <div className="text-sm font-mono text-emerald-400">AES-256</div>
+                                <div className="p-2 rounded-lg bg-black/20 border border-white/5 text-center">
+                                    <div className="text-[10px] text-muted-foreground">Encrypt</div>
+                                    <div className="text-xs font-mono text-emerald-400">AES</div>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {status === 'error' && (
-                        <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 space-y-3">
-                            <div className="flex items-center gap-2 text-destructive">
-                                <AlertCircle className="h-5 w-5" />
-                                <span className="font-medium">Search Failed</span>
-                            </div>
-                            <p className="text-sm text-foreground/80">
-                                {errorMessage || "An unexpected error occurred while processing your request. Please try again."}
+                        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                            <p className="text-xs text-foreground/80">
+                                {errorMessage || "An unexpected error occurred. Please try again."}
                             </p>
                         </div>
                     )}
 
                     {(status === 'searching' || status === 'success') && submittedData && (
-                        <>
-                            <div className="p-3 rounded-xl bg-black/20 border border-white/5 space-y-2">
-                                <div className="flex items-center justify-between text-xs text-muted-foreground uppercase tracking-wider font-medium">
-                                    <span>Query Parameters</span>
-                                    <span>
-                                        <Badge className="text-[10px] h-4 mx-2 p-2 bg-primary/30">
-                                            {submittedData.searchType.toUpperCase()}
-                                        </Badge>
-                                        {submittedData.searchType === 'multi' && (
-                                            <span>{submittedData.selectedEntities?.map(e => e.toUpperCase()).join(', ')}</span>
-                                        )}
-                                    </span>
-                                </div>
-                                <div className="font-mono text-sm text-foreground/90">
+                        <div className="space-y-2">
+                            <div className="p-2.5 rounded-lg bg-black/20 border border-white/5 flex items-center justify-between">
+                                <div className="font-mono text-xs text-foreground/90">
                                     {submittedData.searchType === 'multi' && submittedData.query && `"${submittedData.query}"`}
                                     {submittedData.searchType === 'person' && `${submittedData.firstName} ${submittedData.lastName}`}
                                     {submittedData.searchType === 'phone' && submittedData.phone}
                                     {submittedData.searchType === 'email' && submittedData.email}
                                     {submittedData.searchType === 'address' && `${submittedData.street}, ${submittedData.city}`}
                                     {submittedData.searchType === 'business' && submittedData.businessName}
-                                    {submittedData.stateFilter !== "All States" && <span className="text-muted-foreground ml-2">[{submittedData.stateFilter}]</span>}
                                 </div>
+                                <Badge className="text-[10px] h-4 px-1.5 bg-primary/30">
+                                    {submittedData.searchType.toUpperCase()}
+                                </Badge>
                             </div>
                             
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm">
+                            <div className="flex items-center gap-4 text-xs">
+                                <div className="flex items-center gap-1.5">
                                     {status === 'searching' ? <Loader2 className="h-3 w-3 animate-spin text-primary" /> : <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
-                                    <span className="text-foreground/80">
-                                        {status === 'searching' ? "Querying distributed databases..." : "Data retrieval successful"}
-                                    </span>
+                                    <span className="text-foreground/70">{status === 'searching' ? "Querying..." : "Retrieved"}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
+                                <div className="flex items-center gap-1.5 text-xs">
                                     {status === 'searching' ? <Loader2 className="h-3 w-3 animate-spin text-primary delay-150" /> : <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
                                     <span className="text-foreground/80">
                                         {status === 'searching' ? "Analyzing cross-reference matches..." : "Cross-references verified"}
                                     </span>
                                 </div>
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
         </div>
 
         {/* System Status */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl flex flex-col justify-between">
-            <div>
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">System Status</span>
-                </div>
-                
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between group">
-                        <div className="flex items-center gap-3 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
-                            <Database className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <span>Public Records</span>
-                        </div>
-                        <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">ONLINE</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between group">
-                        <div className="flex items-center gap-3 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
-                            <Globe className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <span>Global Sources</span>
-                        </div>
-                        <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">ONLINE</span>
-                    </div>
-
-                    <div className="flex items-center justify-between group">
-                        <div className="flex items-center gap-3 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
-                            <Server className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <span>API Gateway</span>
-                        </div>
-                        <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">98ms</span>
-                    </div>
-                </div>
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+            <div className="flex items-center gap-2 mb-3">
+                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">System Status</span>
+                <span className="flex-1 h-px bg-white/10" />
+                <span className="text-[10px] font-medium text-foreground/70">Sync: 2hrs ago</span>
             </div>
             
-            <div className="mt-6 pt-4 border-t border-white/5">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Last Sync</span>
-                    <span>Just now</span>
+            <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-foreground/70">
+                        <Database className="h-3 w-3" />
+                        <span>Records</span>
+                    </div>
+                    <span className="text-[10px] font-medium text-emerald-400">ONLINE</span>
+                </div>
+                
+                <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-foreground/70">
+                        <Globe className="h-3 w-3" />
+                        <span>Sources</span>
+                    </div>
+                    <span className="text-[10px] font-medium text-emerald-400">ONLINE</span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-foreground/70">
+                        <Server className="h-3 w-3" />
+                        <span>API</span>
+                    </div>
+                    <span className="text-[10px] font-medium text-emerald-400">98ms</span>
                 </div>
             </div>
         </div>
       </div>
+
+      <span className="block h-12 border-b border-white/10" />
     </div>
   );
 };

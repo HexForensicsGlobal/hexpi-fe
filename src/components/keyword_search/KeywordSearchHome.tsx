@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import SearchResults, { SearchResult, filterCandidateRecords } from "./SearchResults";
+import SearchResults from "./SearchResults";
 import SearchForm from "./SearchForm";
 import PageHighlights from "./PageHighlights";
+import { filterCandidateRecords, type SearchResult } from "@/services/resultFilter";
 
 interface PrefillState {
   prefill?: {
@@ -104,7 +105,7 @@ const KeywordSearchHome = () => {
     <div className="flex-1 flex flex-col text-foreground">
       
       {/* Main Content */}
-      <div className="flex-1 px-6 py-8">
+      <div className="flex-1 px-12 py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] items-start">
           {/* Main Content Area */}
           <div>
