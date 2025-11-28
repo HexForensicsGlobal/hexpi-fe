@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import SearchResults from "./SearchResults";
 import SearchForm from "./SearchForm";
 import PageHighlights from "./PageHighlights";
-import { filterCandidateRecords, type SearchResult } from "@/services/resultFilter";
+import { filterCandidateRecords, type SearchEngineResponse } from "@/services/resultFilter";
 
 interface PrefillState {
   prefill?: {
@@ -18,7 +18,7 @@ const KeywordSearchHome = () => {
   const prefill = (state as PrefillState | null)?.prefill;
 
   const [status, setStatus] = useState<"idle" | "searching" | "success">("idle");
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<SearchEngineResponse | null>(null);
   const [lastQuery, setLastQuery] = useState<{ query: string; stateFilter: string } | null>(null);
   const timeoutId = useRef<number>();
   const [prefillApplied, setPrefillApplied] = useState(false);

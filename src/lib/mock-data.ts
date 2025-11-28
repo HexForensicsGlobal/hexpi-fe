@@ -1,5 +1,5 @@
 
-interface SearchResult {
+export interface CandidateRecord {
   id: string;
   name: string;
   location: string;
@@ -10,7 +10,7 @@ interface SearchResult {
 }
 
 // Mock data - replace with actual API calls when backend is ready
-export const candidateRecords: SearchResult[] = [
+export const candidateRecords: CandidateRecord[] = [
   { id: "1", name: "Johnathan Smith", location: "Lagos, Nigeria", matchScore: 92, insights: ["Utilities account", "Property filings", "Alias detected"], status: "Live", updated: "2h ago" },
   { id: "2", name: "Joanna Smith", location: "Nairobi, Kenya", matchScore: 78, insights: ["Business registration", "Social media"], status: "Live", updated: "5h ago" },
   { id: "3", name: "John Smith", location: "Cape Town, South Africa", matchScore: 66, insights: ["Court docket", "Professional license"], status: "Archived", updated: "1d ago" },
