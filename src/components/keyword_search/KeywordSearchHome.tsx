@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import SearchResults from "./SearchResults";
 import SearchForm from "./SearchForm";
 import PageHighlights from "./PageHighlights";
-import { filterCandidateRecords, type SearchEngineResponse } from "@/services/resultFilter";
+import { filterCandidateRecords, type SearchEngineResponse } from "@/services/searchEngine";
 
 interface PrefillState {
   prefill?: {

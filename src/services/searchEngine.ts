@@ -1,3 +1,7 @@
+/*
+Search engine and re-ranking logic
+*/
+
 import { candidateRecords, type CandidateRecord } from "@/lib/mock-data";
 
 export interface SearchResult extends CandidateRecord {}

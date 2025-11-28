@@ -21,7 +21,7 @@ import {
   UserSearch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { RankedSearchResult, SearchEngineResponse } from "@/services/resultFilter";
+import type { RankedSearchResult, SearchEngineResponse } from "@/services/searchEngine";
 
 interface SearchResultsProps {
   status: "idle" | "searching" | "success";

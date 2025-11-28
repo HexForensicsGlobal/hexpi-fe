@@ -62,10 +62,10 @@ vi.mock("@/lib/mock-data", () => ({
   candidateRecords: mockRecords,
 }));
 
-let filterCandidateRecords: typeof import("../resultFilter").filterCandidateRecords;
+let filterCandidateRecords: typeof import("../searchEngine").filterCandidateRecords;
 
 beforeAll(async () => {
-  ({ filterCandidateRecords } = await import("../resultFilter"));
+  ({ filterCandidateRecords } = await import("../searchEngine"));
 });
 
 describe("filterCandidateRecords", () => {
