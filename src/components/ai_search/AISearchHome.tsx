@@ -25,7 +25,7 @@ export const AISearchHome = ({ className }: AISearchHomeProps) => {
           AI workspace
         </Badge>
         <h1 className="text-5xl font-bold  text-foreground mb-4">
-          Assisted Data Search
+          Assisted Data Retrieval
         </h1>
         <p className="text-3xl text-foreground/90">What are we looking for today?</p>
       </div>

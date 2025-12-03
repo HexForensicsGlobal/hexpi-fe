@@ -178,8 +178,9 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
         </div>
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl">
-        <form className="grid gap-4 md:grid-cols-4" onSubmit={handleSubmit}>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl">
+          <form className="grid gap-4 md:grid-cols-4" onSubmit={handleSubmit}>
           {searchType === "multi" && (
             <div className="md:col-span-4 space-y-4">
                 <div className="space-y-2">
@@ -404,141 +405,142 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
                 )}
             </Button>
           </div>
-        </form>
+          </form>
 
-        {/* Usage agreement */}
-        {/* <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4">
-          <div className="flex items-start gap-3 text-xs text-foreground/70">
-            <ShieldCheck className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="font-medium mb-1">Responsible Data Use</p>
-              <p>
-                By starting a background scan I confirm I&#39;m using this data for legitimate investigative purposes, and I agree to the <a href="#" className="text-primary hover:underline">Terms of Use</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>. This platform is not a consumer reporting agency and should not be used for credit or employment decisions.
-              </p>
+          {/* Usage agreement */}
+          {/* <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4">
+            <div className="flex items-start gap-3 text-xs text-foreground/70">
+              <ShieldCheck className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium mb-1">Responsible Data Use</p>
+                <p>
+                  By starting a background scan I confirm I&#39;m using this data for legitimate investigative purposes, and I agree to the <a href="#" className="text-primary hover:underline">Terms of Use</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>. This platform is not a consumer reporting agency and should not be used for credit or employment decisions.
+                </p>
+              </div>
+            </div>
+          </div> */}
+        </div>
+
+        <aside className="lg:sticky lg:top-6 h-fit space-y-4">
+          {/* System Status */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">System Status</span>
+              <span className="flex-1 h-px bg-white/10" />
+              <span className="text-[10px] font-medium text-foreground/70">Sync: 2hrs ago</span>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-foreground/70">
+                  <Database className="h-3 w-3" />
+                  <span>Records</span>
+                </div>
+                <span className="text-[10px] font-medium text-emerald-400">ONLINE</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-foreground/70">
+                  <Globe className="h-3 w-3" />
+                  <span>Sources</span>
+                </div>
+                <span className="text-[10px] font-medium text-emerald-400">ONLINE</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-foreground/70">
+                  <Server className="h-3 w-3" />
+                  <span>API</span>
+                </div>
+                <span className="text-[10px] font-medium text-emerald-400">98ms</span>
+              </div>
             </div>
           </div>
-        </div> */}
 
-      </div>
-
-      {/* Search Activity & System Status */}
-      <div className="mt-6 grid gap-3 md:grid-cols-3">
-        {/* Activity Feed */}
-        <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl relative overflow-hidden">
+          {/* Search Activity */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
             {status === "searching" && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer bg-[length:200%_100%]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer bg-[length:200%_100%]" />
             )}
-            
+
             <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3">
-                    <Activity className={`h-4 w-4 ${status === 'searching' ? 'text-primary animate-pulse' : status === 'error' ? 'text-destructive' : 'text-muted-foreground'}`} />
-                    <h3 className="font-medium text-sm">
-                        {status === 'idle' && "Ready for Search"}
-                        {status === 'searching' && "Processing Request..."}
-                        {status === 'success' && "Search Complete"}
-                        {status === 'error' && "System Alert"}
-                    </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className={`h-4 w-4 ${status === "searching" ? "text-primary animate-pulse" : status === "error" ? "text-destructive" : "text-muted-foreground"}`} />
+                <h3 className="font-medium text-sm">
+                  {status === "idle" && "Ready for Search"}
+                  {status === "searching" && "Processing Request..."}
+                  {status === "success" && "Search Complete"}
+                  {status === "error" && "System Alert"}
+                </h3>
+                <div className="flex gap-2 ml-auto">
+                  <div className="p-2 rounded-lg bg-black/20 border border-white/5 text-center">
+                    <div className="text-[10px] text-muted-foreground">Protocol</div>
+                    <div className="text-xs font-mono text-foreground/90">MV-2</div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-black/20 border border-white/5 text-center">
+                    <div className="text-[10px] text-muted-foreground">Encrypt</div>
+                    <div className="text-xs font-mono text-emerald-400">AES</div>
+                  </div>
                 </div>
+              </div>
 
-                <div className="space-y-3">
-                    {status === 'idle' && (
-                        <div className="flex items-center gap-4">
-                            <div className="flex-1 p-2.5 rounded-lg bg-white/5 border border-white/10">
-                                <p className="text-muted-foreground text-xs">
-                                    Secure connection established to HexPi core. <br /> Neural search engine initialized and ready for query parameters.
-                                </p>
-                            </div>
-                            <div className="flex gap-2">
-                                <div className="p-2 rounded-lg bg-black/20 border border-white/5 text-center">
-                                    <div className="text-[10px] text-muted-foreground">Protocol</div>
-                                    <div className="text-xs font-mono text-foreground/90">MV-2</div>
-                                </div>
-                                <div className="p-2 rounded-lg bg-black/20 border border-white/5 text-center">
-                                    <div className="text-[10px] text-muted-foreground">Encrypt</div>
-                                    <div className="text-xs font-mono text-emerald-400">AES</div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {status === 'error' && (
-                        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
-                            <p className="text-xs text-foreground/80">
-                                {errorMessage || "An unexpected error occurred. Please try again."}
-                            </p>
-                        </div>
-                    )}
-
-                    {(status === 'searching' || status === 'success') && submittedData && (
-                        <div className="space-y-2">
-                            <div className="p-2.5 rounded-lg bg-black/20 border border-white/5 flex items-center justify-between">
-                                <div className="font-mono text-xs text-foreground/90">
-                                    {(submittedData.searchType === 'multi' || submittedData.searchType === 'person') && submittedData.query && `"${submittedData.query}"`}
-                                    {submittedData.searchType === 'phone' && submittedData.phone}
-                                    {submittedData.searchType === 'email' && submittedData.email}
-                                    {submittedData.searchType === 'address' && `${submittedData.street}, ${submittedData.city}`}
-                                    {submittedData.searchType === 'business' && submittedData.businessName}
-                                </div>
-                                <Badge className="text-[10px] h-4 px-1.5 bg-primary/30">
-                                    {submittedData.searchType.toUpperCase()}
-                                </Badge>
-                            </div>
-                            
-                            <div className="flex items-center gap-4 text-xs">
-                                <div className="flex items-center gap-1.5">
-                                    {status === 'searching' ? <Loader2 className="h-3 w-3 animate-spin text-primary" /> : <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
-                                    <span className="text-foreground/70">{status === 'searching' ? "Querying..." : "Retrieved"}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 text-xs">
-                                    {status === 'searching' ? <Loader2 className="h-3 w-3 animate-spin text-primary delay-150" /> : <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
-                                    <span className="text-foreground/80">
-                                        {status === 'searching' ? "Analyzing cross-reference matches..." : "Cross-references verified"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-
-        {/* System Status */}
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
-            <div className="flex items-center gap-2 mb-3">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">System Status</span>
-                <span className="flex-1 h-px bg-white/10" />
-                <span className="text-[10px] font-medium text-foreground/70">Sync: 2hrs ago</span>
-            </div>
-            
-            <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 text-foreground/70">
-                        <Database className="h-3 w-3" />
-                        <span>Records</span>
+              <div className="space-y-3">
+                {status === "idle" && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 p-2.5 rounded-lg bg-white/5 border border-white/10">
+                      <p className="text-muted-foreground text-xs">
+                        Secure connection established to HexPi core. <br /> Neural search engine initialized and ready for query parameters.
+                      </p>
                     </div>
-                    <span className="text-[10px] font-medium text-emerald-400">ONLINE</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 text-foreground/70">
-                        <Globe className="h-3 w-3" />
-                        <span>Sources</span>
-                    </div>
-                    <span className="text-[10px] font-medium text-emerald-400">ONLINE</span>
-                </div>
+                    
+                  </div>
+                )}
 
-                <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 text-foreground/70">
-                        <Server className="h-3 w-3" />
-                        <span>API</span>
+                {status === "error" && (
+                  <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                    <p className="text-xs text-foreground/80">
+                      {errorMessage || "An unexpected error occurred. Please try again."}
+                    </p>
+                  </div>
+                )}
+
+                {(status === "searching" || status === "success") && submittedData && (
+                  <div className="space-y-2">
+                    <div className="p-2.5 rounded-lg bg-black/20 border border-white/5 flex items-center justify-between">
+                      <div className="font-mono text-xs text-foreground/90">
+                        {(submittedData.searchType === "multi" || submittedData.searchType === "person") && submittedData.query && `"${submittedData.query}"`}
+                        {submittedData.searchType === "phone" && submittedData.phone}
+                        {submittedData.searchType === "email" && submittedData.email}
+                        {submittedData.searchType === "address" && `${submittedData.street}, ${submittedData.city}`}
+                        {submittedData.searchType === "business" && submittedData.businessName}
+                      </div>
+                      <Badge className="text-[10px] h-4 px-1.5 bg-primary/30">
+                        {submittedData.searchType.toUpperCase()}
+                      </Badge>
                     </div>
-                    <span className="text-[10px] font-medium text-emerald-400">98ms</span>
-                </div>
+
+                    <div className="flex items-center gap-4 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        {status === "searching" ? <Loader2 className="h-3 w-3 animate-spin text-primary" /> : <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
+                        <span className="text-foreground/70">{status === "searching" ? "Querying..." : "Retrieved"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs">
+                        {status === "searching" ? <Loader2 className="h-3 w-3 animate-spin text-primary delay-150" /> : <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
+                        <span className="text-foreground/80">
+                          {status === "searching" ? "Analyzing cross-reference matches..." : "Cross-references verified"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-        </div>
+          </div>
+        </aside>
       </div>
+      
 
       <span className="block h-12 border-b border-white/10" />
     </div>

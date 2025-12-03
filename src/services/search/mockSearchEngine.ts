@@ -53,15 +53,15 @@ const relativeLabelToMinutes = (value: string): number => {
   }
 };
 
-type InternalRankedResult = Omit<RankedSearchResult, "matchCategory" | "rank"> & {
+export type ScoredCandidateRecord = Omit<RankedSearchResult, "matchCategory" | "rank"> & {
   allTokensMatched: boolean;
 };
 
-const buildRankedRecord = (
+export const scoreCandidateRecord = (
   record: CandidateRecord,
   queryTerms: string[],
   stateFilter: string,
-): InternalRankedResult => {
+): ScoredCandidateRecord => {
   const normalizedName = record.name.toLowerCase();
   const normalizedLocation = record.location.toLowerCase();
   const tokensMatched = queryTerms.filter(
@@ -104,8 +104,8 @@ export const filterCandidateRecords = (
 ): SearchEngineResponse => {
   const queryTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
-  const ranked: InternalRankedResult[] = candidateRecords.map((candidate) =>
-    buildRankedRecord(candidate, queryTerms, stateFilter),
+  const ranked: ScoredCandidateRecord[] = candidateRecords.map((candidate) =>
+    scoreCandidateRecord(candidate, queryTerms, stateFilter),
   );
 
   const sorted = [...ranked].sort((a, b) => b.relevanceScore - a.relevanceScore);

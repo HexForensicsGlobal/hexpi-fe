@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import SearchResults from "./SearchResults";
-import SearchForm from "./SearchForm";
+import SearchForm, { type SearchFormData } from "./SearchForm";
 import PageHighlights from "./PageHighlights";
-import { filterCandidateRecords, type SearchEngineResponse } from "@/services/searchEngine";
+import api from "@/services/api";
+import type { SearchParams, SearchResponse } from "@/services/types";
 
 interface PrefillState {
   prefill?: {
@@ -17,11 +18,11 @@ const KeywordSearchHome = () => {
   const { state } = useLocation();
   const prefill = (state as PrefillState | null)?.prefill;
 
-  const [status, setStatus] = useState<"idle" | "searching" | "success">("idle");
-  const [results, setResults] = useState<SearchEngineResponse | null>(null);
+  const [status, setStatus] = useState<"idle" | "searching" | "success" | "error">("idle");
+  const [results, setResults] = useState<SearchResponse | null>(null);
   const [lastQuery, setLastQuery] = useState<{ query: string; stateFilter: string } | null>(null);
-  const timeoutId = useRef<number>();
-  const [prefillApplied, setPrefillApplied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inflightRequest = useRef<AbortController | null>(null);
 
   const initialData = prefill ? {
     searchType: "multi" as const,
@@ -29,56 +30,96 @@ const KeywordSearchHome = () => {
     stateFilter: prefill.stateFilter ?? "All States",
   } : undefined;
 
+  const resolveQueryValue = useCallback((data: SearchFormData): string => {
+    switch (data.searchType) {
+      case "phone":
+        return data.phone?.trim() ?? "";
+      case "email":
+        return data.email?.trim() ?? "";
+      case "address":
+        return [data.street, data.city].filter(Boolean).join(" ").trim();
+      case "business":
+        return data.businessName?.trim() ?? data.query.trim();
+      case "person":
+      case "multi":
+      default:
+        return data.query.trim();
+    }
+  }, []);
+
+  const deriveSearchType = useCallback((searchType: SearchFormData["searchType"], selectedEntities?: string[]): SearchParams["search_type"] => {
+    if (searchType === "business" || searchType === "address") {
+      return "organizations";
+    }
+
+    if (searchType === "person" || searchType === "phone" || searchType === "email") {
+      return "affiliates";
+    }
+
+    if (searchType === "multi" && selectedEntities && selectedEntities.length === 1) {
+      return selectedEntities[0] === "business" ? "organizations" : "affiliates";
+    }
+
+    return "both";
+  }, []);
+
   const runSearch = useCallback(
-    (data: { searchType: string; query: string; stateFilter: string; selectedEntities?: string[] }) => {
-      const trimmed = {
-        query: data.query.trim(),
-        stateFilter: data.stateFilter,
-      };
+    async (data: SearchFormData) => {
+      const resolvedQuery = resolveQueryValue(data);
+      const trimmedState = data.stateFilter;
+
+      if (!resolvedQuery) {
+        return;
+      }
+
+      inflightRequest.current?.abort();
+      const controller = new AbortController();
+      inflightRequest.current = controller;
 
       setStatus("searching");
+      setErrorMessage(null);
 
-      timeoutId.current = window.setTimeout(() => {
-        const filtered = filterCandidateRecords(
-          trimmed.query,
-          trimmed.stateFilter
-        );
+      try {
+        const params: SearchParams = {
+          q: resolvedQuery,
+          search_type: deriveSearchType(data.searchType, data.selectedEntities),
+        };
 
-        setResults(filtered);
+        const response = await api.keywordSearch(params, controller.signal);
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setResults(response);
         setLastQuery({
-            query: trimmed.query,
-            stateFilter: trimmed.stateFilter
+          query: resolvedQuery,
+          stateFilter: trimmedState,
         });
         setStatus("success");
-      }, 800);
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+        console.error("Search request failed", error);
+        setErrorMessage(error instanceof Error ? error.message : "Unable to complete search");
+        setStatus("error");
+      } finally {
+        if (inflightRequest.current === controller) {
+          inflightRequest.current = null;
+        }
+      }
     },
-    [],
+    [deriveSearchType, resolveQueryValue],
   );
 
-  const handleSubmit = (data: { searchType: string; query: string; stateFilter: string; selectedEntities?: string[] }) => {
+  const handleSubmit = (data: SearchFormData) => {
     runSearch(data);
   };
 
-  useEffect(() => {
-    return () => {
-      if (timeoutId.current) {
-        window.clearTimeout(timeoutId.current);
-      }
-    };
+  useEffect(() => () => {
+    inflightRequest.current?.abort();
   }, []);
-
-  useEffect(() => {
-    if (!prefillApplied || !prefill) {
-      return;
-    }
-    if (prefill.query) {
-      runSearch({
-        searchType: "multi",
-        query: prefill.query,
-        stateFilter: prefill.stateFilter ?? "All States",
-      });
-    }
-  }, [prefillApplied, prefill, runSearch]);
 
   return (
     <div className="flex-1 flex flex-col text-foreground">
@@ -109,6 +150,7 @@ const KeywordSearchHome = () => {
             {/* Search Form Card */}
             <SearchForm
               status={status}
+              errorMessage={errorMessage ?? undefined}
               onSubmit={handleSubmit}
               initialData={initialData}
               lastQuery={lastQuery}

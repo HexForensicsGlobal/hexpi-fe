@@ -18,7 +18,7 @@ export function QuickActions() {
         <Button
           key={action}
           variant="secondary"
-          className="rounded-full bg-secondary/60 hover:bg-secondary/80 backdrop-blur-sm border border-border/30 text-muted-foreground text-xs px-5 py-2"
+          className="rounded-full bg-secondary/80 hover:bg-secondary backdrop-blur-sm border border-border/30 text-muted-foreground text-xs px-5 py-2"
         >
           {action}
         </Button>
