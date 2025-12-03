@@ -3,7 +3,6 @@
  * match_score is populated for related results (partial token matches).
  */
 export interface OrganizationResult {
-  entry_id: number | null;
   organization_id: number | null;
   rcNumber: string | null;
   approvedName: string | null;
@@ -23,7 +22,7 @@ export interface OrganizationResult {
  * match_score is populated for related results (partial token matches).
  */
 export interface AffiliateResult {
-  entry_id: number | null;
+  affiliate_id: string | null;
   organization_id: number | null;
   surname: string | null;
   firstname: string | null;
@@ -34,6 +33,12 @@ export interface AffiliateResult {
   city: string | null;
   state: string | null;
   nationality: string | null;
+  affiliate_type: string | null;
+  date_of_birth: string | null;
+  shares_allotted: string | null;
+  share_type: string | null;
+  gender: string | null;
+  identity_number: string | null;
   /** Relevance score for related results. Name column matches = +2 points, other columns = +1 point. Null for primary results. */
   match_score: number | null;
 }

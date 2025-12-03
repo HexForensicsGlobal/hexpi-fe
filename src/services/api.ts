@@ -8,7 +8,7 @@ import type {
 // API Service Interface
 export interface IApiService {
   health(): Promise<HealthResponse>;
-  keywordSearch(params: SearchParams): Promise<SearchResponse>;
+  keywordSearch(params: SearchParams, signal?: AbortSignal): Promise<SearchResponse>;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -51,8 +51,9 @@ class ApiService implements IApiService {
     return response.data;
   }
 
-  async keywordSearch(params: SearchParams): Promise<SearchResponse> {
+  async keywordSearch(params: SearchParams, signal?: AbortSignal): Promise<SearchResponse> {
     const response = await this.client.get<SearchResponse>('/api/v1/search/keyword', {
+      signal,
       params: {
         q: params.q,
         search_type: params.search_type || 'both',

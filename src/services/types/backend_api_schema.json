@@ -11,9 +11,9 @@
         "tags": [
           "Search"
         ],
-        "summary": "Keyword Search Get",
-        "description": "Perform keyword search via GET request.\n\nFor multi-word queries (e.g., \"fola bankole\"), uses tiered search:\n- **Primary results**: Records where ALL search tokens match (strict AND logic)\n- **Related results**: Records where 2+ tokens match but not all (partial matches with relevance scoring)\n\nParameters:\n- **q**: Search term(s) to look for. Multi-word queries are tokenized.\n- **search_type**: Type of entities to search (organizations, affiliates, or both)\n- **offset**: Number of primary results to skip for pagination (default: 0)\n- **limit**: Maximum number of primary results (default: 100, max: 1000)\n- **related_limit**: Maximum related results for \"Show Others\" feature (default: 20, max: 100)\n\nResponse includes:\n- `organizations`, `affiliates`: Primary results (all tokens match)\n- `related_organizations`, `related_affiliates`: Partial matches sorted by `match_score`",
-        "operationId": "keyword_search_get_api_v1_search_keyword_get",
+        "summary": "Keyword Search",
+        "description": "Perform keyword search across organizations and/or affiliates.\n\nFor multi-word queries (e.g., \"fola bankole\"), uses tiered search:\n- **Primary results**: Records where ALL search tokens match (strict AND logic)\n- **Related results**: Records where 2+ tokens match but not all (partial matches with relevance scoring)\n\nParameters:\n- **q**: Search term(s) to look for. Multi-word queries are tokenized.\n- **search_type**: Type of entities to search (organizations, affiliates, or both)\n- **offset**: Number of primary results to skip for pagination (default: 0)\n- **limit**: Maximum number of primary results (default: 100, max: 1000)\n- **related_limit**: Maximum related results for \"Show Others\" feature (default: 20, max: 100)\n\nResponse includes:\n- `organizations`, `affiliates`: Primary results (all tokens match)\n- `related_organizations`, `related_affiliates`: Partial matches sorted by `match_score`",
+        "operationId": "keyword_search_api_v1_search_keyword_get",
         "parameters": [
           {
             "name": "q",
@@ -132,6 +132,28 @@
         }
       }
     },
+    "/api/v1/search/health": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search Health",
+        "description": "Health check endpoint for the search service.",
+        "operationId": "search_health_api_v1_search_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "summary": "Health",
@@ -156,17 +178,17 @@
     "schemas": {
       "AffiliateResult": {
         "properties": {
-          "entry_id": {
+          "affiliate_id": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Entry Id",
-            "description": "Database entry ID"
+            "title": "Affiliate Id",
+            "description": "Affiliate ID"
           },
           "organization_id": {
             "anyOf": [
@@ -288,6 +310,78 @@
             "title": "Nationality",
             "description": "Nationality"
           },
+          "affiliate_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affiliate Type",
+            "description": "Type of affiliate"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth",
+            "description": "Date of birth e.g. '1976-10-05T23:00:00.000+00:00'"
+          },
+          "shares_allotted": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shares Allotted",
+            "description": "Number of shares allotted"
+          },
+          "share_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Type",
+            "description": "Type of shares"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender",
+            "description": "Gender"
+          },
+          "identity_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Number",
+            "description": "Affiliate Identity number"
+          },
           "match_score": {
             "anyOf": [
               {
@@ -320,18 +414,6 @@
       },
       "OrganizationResult": {
         "properties": {
-          "entry_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Entry Id",
-            "description": "Database entry ID"
-          },
           "organization_id": {
             "anyOf": [
               {
