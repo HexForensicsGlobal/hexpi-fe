@@ -5,6 +5,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   ArrowUpDown,
   Building2,
+  ChevronRight,
   History,
   MapPin,
   Sparkles,
@@ -12,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import type { AffiliateResult, OrganizationResult, SearchResponse } from "@/services/types";
+import { OrganizationDetail, AffiliateDetail } from "./SearchResultDetail";
 
 interface SearchResultsProps {
   status: "idle" | "searching" | "success" | "error";
@@ -58,6 +60,10 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
   const [primaryPage, setPrimaryPage] = useState(1);
   const [relatedPage, setRelatedPage] = useState(1);
   const pageSize = 8;
+
+  // Detail panel state
+  const [selectedOrganization, setSelectedOrganization] = useState<OrganizationResult | null>(null);
+  const [selectedAffiliate, setSelectedAffiliate] = useState<AffiliateResult | null>(null);
 
   useEffect(() => {
     if (!results) {
@@ -173,9 +179,17 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
           {primaryPageItems.length ? (
             primaryPageItems.map((record, index) => (
               primaryTab === "organizations" ? (
-                <OrganizationCard key={`org-${index}-${record.organization_id ?? index}`} organization={record as OrganizationResult} />
+                <OrganizationCard
+                  key={`org-${index}-${record.organization_id ?? index}`}
+                  organization={record as OrganizationResult}
+                  onClick={() => setSelectedOrganization(record as OrganizationResult)}
+                />
               ) : (
-                <AffiliateCard key={`aff-${index}-${(record as AffiliateResult).affiliate_id ?? index}`} affiliate={record as AffiliateResult} />
+                <AffiliateCard
+                  key={`aff-${index}-${(record as AffiliateResult).affiliate_id ?? index}`}
+                  affiliate={record as AffiliateResult}
+                  onClick={() => setSelectedAffiliate(record as AffiliateResult)}
+                />
               )
             ))
           ) : (
@@ -215,6 +229,8 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
         ) : null}
       </section>
 
+      <div className="py-10"><hr className="mx-8"/></div>
+
       <section className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -244,12 +260,14 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
                   key={`rel-org-${index}-${record.organization_id ?? index}`}
                   organization={record as OrganizationResult}
                   variant="related"
+                  onClick={() => setSelectedOrganization(record as OrganizationResult)}
                 />
               ) : (
                 <AffiliateCard
                   key={`rel-aff-${index}-${(record as AffiliateResult).affiliate_id ?? index}`}
                   affiliate={record as AffiliateResult}
                   variant="related"
+                  onClick={() => setSelectedAffiliate(record as AffiliateResult)}
                 />
               )
             ))
@@ -299,6 +317,18 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
           Data served directly from the HexPi search service. Metrics reflect the live backend without local re-ranking.
         </p>
       </div>
+
+      {/* Detail Panels */}
+      <OrganizationDetail
+        organization={selectedOrganization}
+        open={selectedOrganization !== null}
+        onOpenChange={(open) => !open && setSelectedOrganization(null)}
+      />
+      <AffiliateDetail
+        affiliate={selectedAffiliate}
+        open={selectedAffiliate !== null}
+        onOpenChange={(open) => !open && setSelectedAffiliate(null)}
+      />
     </div>
   );
 };
@@ -306,13 +336,18 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
 interface OrganizationCardProps {
   organization: OrganizationResult;
   variant?: "primary" | "related";
+  onClick?: () => void;
 }
 
-const OrganizationCard = ({ organization, variant = "primary" }: OrganizationCardProps) => {
+const OrganizationCard = ({ organization, variant = "primary", onClick }: OrganizationCardProps) => {
   const name = buildOrganizationName(organization);
   const location = formatLocation(organization.city, organization.state, organization.address);
   return (
-    <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full text-left rounded-3xl border border-white/10 bg-black/20 p-5 transition-all hover:border-primary/40 hover:bg-black/30 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer group"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-sm text-foreground/60">
@@ -321,9 +356,12 @@ const OrganizationCard = ({ organization, variant = "primary" }: OrganizationCar
           </div>
           <h3 className="mt-1 text-xl font-semibold text-white">{name}</h3>
         </div>
-        <Badge variant={variant === "primary" ? "outline" : "secondary"} className="border-white/20 text-foreground/80">
-          {organization.status || "UNSPECIFIED"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={variant === "primary" ? "outline" : "secondary"} className="border-white/20 text-foreground/80">
+            {organization.status || "UNSPECIFIED"}
+          </Badge>
+          <ChevronRight className="h-4 w-4 text-foreground/40 group-hover:text-primary transition-colors" />
+        </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-foreground/70">
         <span className="inline-flex items-center gap-2">
@@ -338,20 +376,25 @@ const OrganizationCard = ({ organization, variant = "primary" }: OrganizationCar
           <Sparkles className="h-3 w-3" /> Match score {organization.match_score}
         </div>
       ) : null}
-    </div>
+    </button>
   );
 };
 
 interface AffiliateCardProps {
   affiliate: AffiliateResult;
   variant?: "primary" | "related";
+  onClick?: () => void;
 }
 
-const AffiliateCard = ({ affiliate, variant = "primary" }: AffiliateCardProps) => {
+const AffiliateCard = ({ affiliate, variant = "primary", onClick }: AffiliateCardProps) => {
   const name = buildAffiliateName(affiliate);
   const location = formatLocation(affiliate.city, affiliate.state, affiliate.nationality);
   return (
-    <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full text-left rounded-3xl border border-white/10 bg-black/15 p-5 transition-all hover:border-primary/40 hover:bg-black/25 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer group"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-sm text-foreground/60">
@@ -360,11 +403,14 @@ const AffiliateCard = ({ affiliate, variant = "primary" }: AffiliateCardProps) =
           </div>
           <h3 className="mt-1 text-xl font-semibold text-white">{name}</h3>
         </div>
-        {affiliate.identity_number ? (
-          <Badge variant={variant === "primary" ? "outline" : "secondary"} className="border-white/20 text-foreground/80">
-            {affiliate.identity_number}
-          </Badge>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {affiliate.identity_number ? (
+            <Badge variant={variant === "primary" ? "outline" : "secondary"} className="border-white/20 text-foreground/80">
+              {affiliate.identity_number}
+            </Badge>
+          ) : null}
+          <ChevronRight className="h-4 w-4 text-foreground/40 group-hover:text-primary transition-colors" />
+        </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-foreground/70">
         <span className="inline-flex items-center gap-2">
@@ -378,7 +424,7 @@ const AffiliateCard = ({ affiliate, variant = "primary" }: AffiliateCardProps) =
           <Sparkles className="h-3 w-3" /> Match score {affiliate.match_score}
         </div>
       ) : null}
-    </div>
+    </button>
   );
 };
 
