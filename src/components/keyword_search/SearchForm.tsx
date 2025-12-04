@@ -76,6 +76,14 @@ const SearchForm = ({ status, errorMessage, onSubmit, initialData, lastQuery }: 
   const [errors, setErrors] = useState<{ query?: string; phone?: string; email?: string }>({});
   const hasAutoSubmitted = useRef(false);
 
+  // Sync form state with lastQuery when navigating back to the page
+  useEffect(() => {
+    if (lastQuery && lastQuery.query && !query) {
+      setQuery(lastQuery.query);
+      setStateFilter(lastQuery.stateFilter);
+    }
+  }, [lastQuery, query]);
+
   useEffect(() => {
     if (initialData && initialData.query && !hasAutoSubmitted.current) {
       hasAutoSubmitted.current = true;

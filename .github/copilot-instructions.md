@@ -8,6 +8,8 @@
 - use existing ui components before considering new ones
 - follow existing code style and conventions
 - ensure code is clean and well-organized
+- ensure files are located in appropriate directories
+- ensure code is well-documented with comments where necessary
 
 ## Code Standard and Conventions:
 - !ensure graceful error handling and user feedback for all user interactions and data fetching operations.

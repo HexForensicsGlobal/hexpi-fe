@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useCallback, useEffect, useRef } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import SearchResults from "./SearchResults";
 import SearchForm, { type SearchFormData } from "./SearchForm";
 import PageHighlights from "./PageHighlights";
 import api from "@/services/api";
-import type { SearchParams, SearchResponse } from "@/services/types";
+import type { SearchParams } from "@/services/types";
+import { useSearchStore } from "@/stores/searchStore";
 
 interface PrefillState {
   prefill?: {
@@ -16,18 +17,27 @@ interface PrefillState {
 
 const KeywordSearchHome = () => {
   const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const prefill = (state as PrefillState | null)?.prefill;
 
-  const [status, setStatus] = useState<"idle" | "searching" | "success" | "error">("idle");
-  const [results, setResults] = useState<SearchResponse | null>(null);
-  const [lastQuery, setLastQuery] = useState<{ query: string; stateFilter: string } | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Global state from Zustand
+  const { status, results, lastQuery, errorMessage, setStatus, setError, setResults } = useSearchStore();
+  
   const inflightRequest = useRef<AbortController | null>(null);
+  const hasInitialized = useRef(false);
+
+  // Get query from URL or prefill
+  const urlQuery = searchParams.get("q") ?? "";
+  const urlState = searchParams.get("state") ?? "All States";
 
   const initialData = prefill ? {
     searchType: "multi" as const,
     query: prefill.query ?? "",
     stateFilter: prefill.stateFilter ?? "All States",
+  } : urlQuery ? {
+    searchType: "multi" as const,
+    query: urlQuery,
+    stateFilter: urlState,
   } : undefined;
 
   const resolveQueryValue = useCallback((data: SearchFormData): string => {
@@ -77,7 +87,9 @@ const KeywordSearchHome = () => {
       inflightRequest.current = controller;
 
       setStatus("searching");
-      setErrorMessage(null);
+
+      // Update URL with search params
+      setSearchParams({ q: resolvedQuery, state: trimmedState }, { replace: true });
 
       try {
         const params: SearchParams = {
@@ -91,31 +103,40 @@ const KeywordSearchHome = () => {
           return;
         }
 
-        setResults(response);
-        setLastQuery({
-          query: resolvedQuery,
-          stateFilter: trimmedState,
-        });
-        setStatus("success");
+        setResults(response, { query: resolvedQuery, stateFilter: trimmedState });
       } catch (error) {
         if (controller.signal.aborted) {
           return;
         }
         console.error("Search request failed", error);
-        setErrorMessage(error instanceof Error ? error.message : "Unable to complete search");
-        setStatus("error");
+        setError(error instanceof Error ? error.message : "Unable to complete search");
       } finally {
         if (inflightRequest.current === controller) {
           inflightRequest.current = null;
         }
       }
     },
-    [deriveSearchType, resolveQueryValue],
+    [deriveSearchType, resolveQueryValue, setStatus, setResults, setError, setSearchParams],
   );
 
   const handleSubmit = (data: SearchFormData) => {
     runSearch(data);
   };
+
+  // Restore search from URL on mount if we have a query but no results yet
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have URL params but no cached results, trigger a search
+    if (urlQuery && !results) {
+      runSearch({
+        searchType: "multi",
+        query: urlQuery,
+        stateFilter: urlState,
+      });
+    }
+  }, [urlQuery, urlState, results, runSearch]);
 
   useEffect(() => () => {
     inflightRequest.current?.abort();
@@ -161,7 +182,7 @@ const KeywordSearchHome = () => {
           </div>
         
           {/* Highlights - Right panel */}
-          <PageHighlights />
+          {/* <PageHighlights /> */}
 
         </div>
       </div>
