@@ -23,7 +23,9 @@ const Header = () => {
     navigate("/app/ai-search", { state: { query: trimmed } });
   };
   return (
-    <header className="w-full z-50 h-auto flex items-center backdrop-blur-md px-4 py-2">
+    <div className="w-full z-50">
+      <header className="flex items-center backdrop-blur-md px-4 py-2">
+        {/* Sidebar Toggle */}
       <div className="flex items-center">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -35,36 +37,26 @@ const Header = () => {
         </Tooltip>
       </div>
       
-      {/* Quick Search */} 
-      {showQuickSearch ? (
-        <form onSubmit={handleQuickSearch} className="flex flex-1 justify-center px-4">
-            <div className="flex w-full max-w-3xl items-center gap-2 py-auto">
-            {/* Navigation badges */}
-            <div className="px-6 py-4 m-auto">
-              {/* Breadcrumb*/}
-              <div className="flex items-center justify-between">
-                {/* <div className="flex items-center gap-2 text-sm">
-                  <Link to="/app" className="text-foreground/60 hover:text-foreground transition">
-                    Dashboard
-                  </Link>
-                  <ChevronRight className="h-4 w-4 text-foreground/40" />
-                  <span className="text-foreground font-medium">Keyword Search</span>
-                </div> */}
-
-                <div className="flex items-center gap-3 text-xs m-auto">
-                  <Link to="/" className="text-primary hover:underline">
-                    Back to Landing
-                  </Link>
-                  <Link to="https://hexforensics.com/" target="blank">
-                    <Badge variant="secondary" className="bg-primary/10 text-primary">
-                      <ArrowUpRight className="mr-1 h-3 w-3" /> About Hex Forensics
-                    </Badge>
-                  </Link>
-                </div>
-              </div>
+      {/* Center content: navigation badges + optional quick search */}
+      <div className="flex flex-1 justify-center px-4">
+        <div className="flex w-full max-w-3xl items-center gap-2">
+          {/* Navigation badges */}
+          <div className="px-6 py-4 m-auto">
+            <div className="flex items-center gap-3 text-xs">
+              <Link to="/" className="text-primary hover:underline">
+                Back to Landing
+              </Link>
+              <Link to="https://hexforensics.com/" target="_blank" rel="noreferrer">
+                <Badge variant="secondary" className="bg-primary/10 text-primary">
+                  <ArrowUpRight className="mr-1 h-3 w-3" /> About Hex Forensics
+                </Badge>
+              </Link>
             </div>
-            {/* Search Input */}
-            <div className="relative flex-1">
+          </div>
+
+          {/* Quick Search - conditionally rendered */}
+          {showQuickSearch && (
+            <form onSubmit={handleQuickSearch} className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/60" />
               <Input
                 value={quickQuery}
@@ -72,40 +64,11 @@ const Header = () => {
                 placeholder="Live AI search..."
                 className="h-10 w-full bg-white/5 border-white/10 pl-10 text-sm placeholder:text-foreground/60"
               />
-            </div>
-            {/* <Button type="submit" size="sm" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              Launch AI
-            </Button> */}
-          </div>
-        </form>
-      ) : (
-        <div className="flex flex-1 ">
-          <div className="px-6 py-4 m-auto">
-            {/* Breadcrumb*/}
-            <div className="flex items-center justify-between mb-4">
-              {/* <div className="flex items-center gap-2 text-sm">
-                <Link to="/app" className="text-foreground/60 hover:text-foreground transition">
-                  Dashboard
-                </Link>
-                <ChevronRight className="h-4 w-4 text-foreground/40" />
-                <span className="text-foreground font-medium">Keyword Search</span>
-              </div> */}
-
-              <div className="flex items-center gap-3 text-xs m-auto">
-                <Link to="/" className="text-primary hover:underline">
-                  Back to Home
-                </Link>
-                <Link to="https://hexforensics.com/" target="blank">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary">
-                    <ArrowUpRight className="mr-1 h-3 w-3" /> About Hex Forensics
-                  </Badge>
-                </Link>
-              </div>
-            </div>
-          </div>
+            </form>
+          )}
         </div>
-      )}
+      </div>
+
       {/* Notification and Settings */}
       <div className="ml-4 flex items-center">
         <Button variant="ghost" size="icon">
@@ -116,6 +79,8 @@ const Header = () => {
         </Button>
       </div>
     </header>
+    <hr className="mx-28 border-white/10" />
+  </div>
   );
 };
 
