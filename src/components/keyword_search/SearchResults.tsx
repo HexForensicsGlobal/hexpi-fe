@@ -1,19 +1,46 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowUpDown,
   Building2,
   ChevronRight,
-  History,
+  Grid3X3,
+  List,
   MapPin,
   Sparkles,
   User,
-  Users,
 } from "lucide-react";
 import type { AffiliateResult, OrganizationResult, SearchResponse } from "@/services/types";
 import { OrganizationDetail, AffiliateDetail } from "./SearchResultDetail";
+
+/**
+ * Highlights occurrences of search terms within text.
+ * Splits query into words and highlights each match with a styled span.
+ */
+const highlightText = (text: string | null | undefined, query: string | null | undefined): ReactNode => {
+  if (!text) return text ?? "";
+  if (!query || !query.trim()) return text;
+
+  // Split query into individual words and escape regex special chars
+  const terms = query.trim().split(/\s+/).filter(Boolean);
+  if (!terms.length) return text;
+
+  const escaped = terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(pattern);
+
+  return parts.map((part, i) =>
+    pattern.test(part) ? (
+      <mark key={i} className="bg-primary/30 text-foreground rounded-sm px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
 
 interface SearchResultsProps {
   status: "idle" | "searching" | "success" | "error";
@@ -59,6 +86,7 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
   const [relatedTab, setRelatedTab] = useState<RelatedTab>("related_organizations");
   const [primaryPage, setPrimaryPage] = useState(1);
   const [relatedPage, setRelatedPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const pageSize = 8;
 
   // Detail panel state
@@ -114,6 +142,52 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
   const primaryPageItems = primaryList.slice((primaryPage - 1) * pageSize, primaryPage * pageSize);
   const relatedPageItems = relatedList.slice((relatedPage - 1) * pageSize, relatedPage * pageSize);
 
+  // Show loading skeleton when searching
+  if (status === "searching") {
+    return (
+      <div className="space-y-6 animate-in fade-in duration-300">
+        {/* Skeleton Summary Header */}
+        <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-5 w-48 bg-white/10" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-4 w-24 bg-white/10" />
+            <Skeleton className="h-4 w-20 bg-white/10" />
+          </div>
+        </div>
+
+        {/* Skeleton Cards */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <Skeleton className="h-6 w-40 bg-white/10 mb-2" />
+              <Skeleton className="h-4 w-56 bg-white/10" />
+            </div>
+            <Skeleton className="h-8 w-48 rounded-full bg-white/10" />
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <Skeleton className="h-4 w-24 bg-white/10 mb-2" />
+                    <Skeleton className="h-6 w-64 bg-white/10" />
+                  </div>
+                  <Skeleton className="h-6 w-20 rounded-full bg-white/10" />
+                </div>
+                <div className="flex gap-4 mt-3">
+                  <Skeleton className="h-4 w-32 bg-white/10" />
+                  <Skeleton className="h-4 w-28 bg-white/10" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (status !== "success" || !lastQuery || !results) {
     return null;
   }
@@ -125,57 +199,74 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
     { label: "Related affiliates", value: results.total_related_affiliates },
   ];
 
-  const queryLatency = `${Math.round(results.query_time_ms)}ms latency`;
+  const queryLatency = `${Math.round(results.query_time_ms)}ms`;
+
+  const totalResults = results.total_matched_organizations + results.total_matched_affiliates;
 
   return (
-    <div className="mb-10 mt-12 space-y-6">
-      <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/0 to-primary/5 p-6 shadow-xl shadow-black/30">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-foreground/60">Keyword Intelligence Snapshot</p>
-            <div className="mt-1 flex items-center gap-2 text-sm text-foreground/70">
-              <Users className="h-4 w-4 text-primary" />
-              <span>
-                "{lastQuery.query || "Wildcard"}" • {lastQuery.stateFilter}
-              </span>
-            </div>
+    <div className="space-y-6">
+      {/* Compact Summary Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-foreground/50">Results for</span>
+            <span className="font-medium text-foreground">"{lastQuery.query || "Wildcard"}"</span>
+            {lastQuery.stateFilter !== "All States" && (
+              <Badge variant="outline" className="border-white/20 text-xs">
+                {lastQuery.stateFilter}
+              </Badge>
+            )}
           </div>
-          <Badge variant="outline" className="border-white/20 bg-black/40 text-foreground/80">
-            <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
-            {queryLatency}
-          </Badge>
         </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {summaryHighlights.map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/10 bg-black/30 p-4">
-              <p className="text-xs font-medium uppercase tracking-widest text-foreground/60">{item.label}</p>
-              <p className="mt-1 text-2xl font-semibold">{item.value}</p>
-            </div>
-          ))}
+        <div className="flex items-center gap-4 text-xs text-foreground/50">
+          <span>{totalResults} primary matches</span>
+          <span>•</span>
+          <span>{results.total_related_organizations + results.total_related_affiliates} related matches</span>
+          <span>•</span>
+          <span className="text-foreground/40">{queryLatency}</span>
+          <div className="flex items-center gap-1 ml-2 border-l border-white/10 pl-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-7 w-7 p-0 ${viewMode === "list" ? "bg-white/10" : ""}`}
+              onClick={() => setViewMode("list")}
+            >
+              <List className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-7 w-7 p-0 ${viewMode === "grid" ? "bg-white/10" : ""}`}
+              onClick={() => setViewMode("grid")}
+            >
+              <Grid3X3 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
-      </section>
+      </div>
 
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* Primary Entities Section */}
+      <section>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-foreground/60">Primary Entities</p>
-            <h3 className="text-xl font-semibold text-white">Organizations & Affiliates with full token matches</h3>
+            <h3 className="text-lg font-semibold text-foreground">Primary Matches</h3>
+            <p className="text-xs text-foreground/50">Direct matches for your search terms</p>
           </div>
           <ToggleGroup
             type="single"
             value={primaryTab}
             onValueChange={(value) => value && setPrimaryTab(value as PrimaryTab)}
-            className="rounded-full border border-white/10 bg-black/20 p-1"
+            className="rounded-full border border-white/10 bg-white/5 p-1"
           >
-            <ToggleGroupItem value="organizations" className="rounded-full px-4 text-xs">
-              Orgs ({results.organizations.length})
+            <ToggleGroupItem value="organizations" className="rounded-full px-3 py-1 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+              Organizations ({results.organizations.length})
             </ToggleGroupItem>
-            <ToggleGroupItem value="affiliates" className="rounded-full px-4 text-xs">
+            <ToggleGroupItem value="affiliates" className="rounded-full px-3 py-1 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
               Affiliates ({results.affiliates.length})
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="mt-4 space-y-4">
+        <div className={viewMode === "grid" ? "grid gap-3 md:grid-cols-2" : "space-y-3"}>
           {primaryPageItems.length ? (
             primaryPageItems.map((record, index) => (
               primaryTab === "organizations" ? (
@@ -183,42 +274,48 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
                   key={`org-${index}-${record.organization_id ?? index}`}
                   organization={record as OrganizationResult}
                   onClick={() => setSelectedOrganization(record as OrganizationResult)}
+                  compact={viewMode === "grid"}
+                  searchQuery={lastQuery?.query}
                 />
               ) : (
                 <AffiliateCard
                   key={`aff-${index}-${(record as AffiliateResult).affiliate_id ?? index}`}
                   affiliate={record as AffiliateResult}
                   onClick={() => setSelectedAffiliate(record as AffiliateResult)}
+                  compact={viewMode === "grid"}
+                  searchQuery={lastQuery?.query}
                 />
               )
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-6 text-center">
-              <p className="text-sm text-foreground/70">No {primaryTab === "organizations" ? "organizations" : "affiliates"} matched all tokens.</p>
-              <p className="text-xs text-foreground/50 mt-1">Try broadening your query or switch entity focus.</p>
+            <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center">
+              <p className="text-sm text-foreground/60">No {primaryTab === "organizations" ? "organizations" : "affiliates"} matched your search.</p>
+              <p className="text-xs text-foreground/40 mt-1">Try adjusting your query or switching entity type.</p>
             </div>
           )}
         </div>
-        {primaryList.length > pageSize ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 p-3 text-sm">
-            <span>
-              Showing <strong>{primaryPageItems.length}</strong> of {primaryList.length} {primaryTab}
+        {primaryList.length > pageSize && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+            <span className="text-xs text-foreground/50">
+              Showing {primaryPageItems.length} of {primaryList.length}
             </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
+                className="h-8 px-3 text-xs"
                 disabled={primaryPage === 1}
                 onClick={() => setPrimaryPage((prev) => Math.max(1, prev - 1))}
               >
                 Previous
               </Button>
-              <div className="rounded-full border border-white/10 px-4 py-1">
-                Page {primaryPage} / {totalPrimaryPages}
-              </div>
+              <span className="text-xs text-foreground/50 px-2">
+                {primaryPage} / {totalPrimaryPages}
+              </span>
               <Button
                 variant="ghost"
                 size="sm"
+                className="h-8 px-3 text-xs"
                 disabled={primaryPage === totalPrimaryPages}
                 onClick={() => setPrimaryPage((prev) => Math.min(totalPrimaryPages, prev + 1))}
               >
@@ -226,33 +323,32 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
               </Button>
             </div>
           </div>
-        ) : null}
+        )}
       </section>
 
-      <div className="py-10"><hr className="mx-8"/></div>
-
-      <section className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* Related Entities Section */}
+      <section className="mt-8 pt-8 border-t border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-primary">Signal Adjacent</p>
-            <h3 className="text-xl font-semibold">Partial matches worth reviewing</h3>
+            <h3 className="text-lg font-semibold text-foreground">Related Matches</h3>
+            <p className="text-xs text-foreground/50">Partial matches worth reviewing</p>
           </div>
           <ToggleGroup
             type="single"
             value={relatedTab}
             onValueChange={(value) => value && setRelatedTab(value as RelatedTab)}
-            className="rounded-full border border-primary/30 bg-black/20 p-1"
+            className="rounded-full border border-white/10 bg-white/5 p-1"
           >
-            <ToggleGroupItem value="related_organizations" className="rounded-full px-4 text-xs">
-              Orgs ({results.related_organizations.length})
+            <ToggleGroupItem value="related_organizations" className="rounded-full px-3 py-1 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+              Organizations ({results.related_organizations.length})
             </ToggleGroupItem>
-            <ToggleGroupItem value="related_affiliates" className="rounded-full px-4 text-xs">
+            <ToggleGroupItem value="related_affiliates" className="rounded-full px-3 py-1 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
               Affiliates ({results.related_affiliates.length})
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {relatedPageItems.length ? (
             relatedPageItems.map((record, index) => (
               relatedTab === "related_organizations" ? (
@@ -261,6 +357,7 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
                   organization={record as OrganizationResult}
                   variant="related"
                   onClick={() => setSelectedOrganization(record as OrganizationResult)}
+                  searchQuery={lastQuery?.query}
                 />
               ) : (
                 <AffiliateCard
@@ -268,36 +365,39 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
                   affiliate={record as AffiliateResult}
                   variant="related"
                   onClick={() => setSelectedAffiliate(record as AffiliateResult)}
+                  searchQuery={lastQuery?.query}
                 />
               )
             ))
           ) : (
-            <div className="md:col-span-2 rounded-2xl border border-dashed border-primary/30 bg-black/10 p-6 text-center">
-              <p className="text-sm text-primary/80">No related {relatedTab === "related_organizations" ? "organizations" : "affiliates"} for this query.</p>
+            <div className="md:col-span-2 rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center">
+              <p className="text-sm text-foreground/60">No related {relatedTab === "related_organizations" ? "organizations" : "affiliates"} found.</p>
             </div>
           )}
         </div>
 
-        {relatedList.length > pageSize ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-black/10 p-3 text-sm">
-            <span>
-              Showing <strong>{relatedPageItems.length}</strong> of {relatedList.length} related hits
+        {relatedList.length > pageSize && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+            <span className="text-xs text-foreground/50">
+              Showing {relatedPageItems.length} of {relatedList.length}
             </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
+                className="h-8 px-3 text-xs"
                 disabled={relatedPage === 1}
                 onClick={() => setRelatedPage((prev) => Math.max(1, prev - 1))}
               >
                 Previous
               </Button>
-              <div className="rounded-full border border-primary/40 px-4 py-1">
-                Page {relatedPage} / {totalRelatedPages}
-              </div>
+              <span className="text-xs text-foreground/50 px-2">
+                {relatedPage} / {totalRelatedPages}
+              </span>
               <Button
                 variant="ghost"
                 size="sm"
+                className="h-8 px-3 text-xs"
                 disabled={relatedPage === totalRelatedPages}
                 onClick={() => setRelatedPage((prev) => Math.min(totalRelatedPages, prev + 1))}
               >
@@ -305,18 +405,8 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
               </Button>
             </div>
           </div>
-        ) : null}
+        )}
       </section>
-
-      <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-xs text-foreground/70">
-        <div className="flex items-center gap-2">
-          <History className="h-3.5 w-3.5 text-primary" />
-          <span className="font-medium">API responded in {queryLatency}</span>
-        </div>
-        <p className="mt-1">
-          Data served directly from the HexPi search service. Metrics reflect the live backend without local re-ranking.
-        </p>
-      </div>
 
       {/* Detail Panels */}
       <OrganizationDetail
@@ -336,46 +426,57 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
 interface OrganizationCardProps {
   organization: OrganizationResult;
   variant?: "primary" | "related";
+  compact?: boolean;
+  searchQuery?: string;
   onClick?: () => void;
 }
 
-const OrganizationCard = ({ organization, variant = "primary", onClick }: OrganizationCardProps) => {
+const OrganizationCard = ({ organization, variant = "primary", compact = false, searchQuery, onClick }: OrganizationCardProps) => {
   const name = buildOrganizationName(organization);
   const location = formatLocation(organization.city, organization.state, organization.address);
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left rounded-3xl border border-white/10 bg-black/20 p-5 transition-all hover:border-primary/40 hover:bg-black/30 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer group"
+      className={`w-full text-left rounded-2xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer group
+        ${compact ? "p-4" : "p-5"}
+        ${variant === "primary" 
+          ? "border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/20" 
+          : "border-primary/20 bg-primary/5 backdrop-blur-sm hover:bg-primary/10 hover:border-primary/30"
+        }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 text-sm text-foreground/60">
-            <Building2 className="h-4 w-4 text-primary" />
-            <span>{organization.rcNumber ? `RC ${organization.rcNumber}` : "No RC on file"}</span>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-xs text-foreground/50">
+            <Building2 className="h-3.5 w-3.5 text-primary" />
+            <span>{organization.rcNumber ? <>RC {highlightText(organization.rcNumber, searchQuery)}</> : "No RC"}</span>
           </div>
-          <h3 className="mt-1 text-xl font-semibold text-white">{name}</h3>
+          <h3 className={`mt-1 font-semibold text-foreground truncate ${compact ? "text-base" : "text-lg"}`}>{highlightText(name, searchQuery)}</h3>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={variant === "primary" ? "outline" : "secondary"} className="border-white/20 text-foreground/80">
-            {organization.status || "UNSPECIFIED"}
-          </Badge>
-          <ChevronRight className="h-4 w-4 text-foreground/40 group-hover:text-primary transition-colors" />
-        </div>
+        {!compact && (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Badge variant="outline" className="border-white/20 bg-white/5 text-foreground/70 text-xs">
+              {organization.status || "UNSPECIFIED"}
+            </Badge>
+            <ChevronRight className="h-4 w-4 text-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </div>
+        )}
       </div>
-      <div className="mt-4 flex flex-wrap gap-4 text-sm text-foreground/70">
-        <span className="inline-flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" /> {location}
+      <div className={`flex flex-wrap gap-x-3 gap-y-1 text-xs text-foreground/50 ${compact ? "mt-2" : "mt-3"}`}>
+        <span className="inline-flex items-center gap-1.5">
+          <MapPin className="h-3 w-3" /> {highlightText(location, searchQuery)}
         </span>
-        <span className="inline-flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" /> {formatDateLabel(organization.registrationDate)}
-        </span>
+        {!compact && (
+          <span className="inline-flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3" /> {formatDateLabel(organization.registrationDate)}
+          </span>
+        )}
       </div>
-      {variant === "related" && typeof organization.match_score === "number" ? (
-        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-          <Sparkles className="h-3 w-3" /> Match score {organization.match_score}
+      {variant === "related" && typeof organization.match_score === "number" && (
+        <div className={`inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs text-primary ${compact ? "mt-2" : "mt-3"}`}>
+          <Sparkles className="h-3 w-3" /> Score: {organization.match_score}
         </div>
-      ) : null}
+      )}
     </button>
   );
 };
@@ -383,47 +484,56 @@ const OrganizationCard = ({ organization, variant = "primary", onClick }: Organi
 interface AffiliateCardProps {
   affiliate: AffiliateResult;
   variant?: "primary" | "related";
+  compact?: boolean;
+  searchQuery?: string;
   onClick?: () => void;
 }
 
-const AffiliateCard = ({ affiliate, variant = "primary", onClick }: AffiliateCardProps) => {
+const AffiliateCard = ({ affiliate, variant = "primary", compact = false, searchQuery, onClick }: AffiliateCardProps) => {
   const name = buildAffiliateName(affiliate);
   const location = formatLocation(affiliate.city, affiliate.state, affiliate.nationality);
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left rounded-3xl border border-white/10 bg-black/15 p-5 transition-all hover:border-primary/40 hover:bg-black/25 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer group"
+      className={`w-full text-left rounded-2xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer group
+        ${compact ? "p-4" : "p-5"}
+        ${variant === "primary" 
+          ? "border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/20" 
+          : "border-primary/20 bg-primary/5 backdrop-blur-sm hover:bg-primary/10 hover:border-primary/30"
+        }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 text-sm text-foreground/60">
-            <User className="h-4 w-4 text-primary" />
-            <span>{affiliate.occupation || "Role unavailable"}</span>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-xs text-foreground/50">
+            <User className="h-3.5 w-3.5 text-primary" />
+            <span>{highlightText(affiliate.occupation, searchQuery) || "Role unavailable"}</span>
           </div>
-          <h3 className="mt-1 text-xl font-semibold text-white">{name}</h3>
+          <h3 className={`mt-1 font-semibold text-foreground truncate ${compact ? "text-base" : "text-lg"}`}>{highlightText(name, searchQuery)}</h3>
         </div>
-        <div className="flex items-center gap-2">
-          {affiliate.identity_number ? (
-            <Badge variant={variant === "primary" ? "outline" : "secondary"} className="border-white/20 text-foreground/80">
-              {affiliate.identity_number}
-            </Badge>
-          ) : null}
-          <ChevronRight className="h-4 w-4 text-foreground/40 group-hover:text-primary transition-colors" />
-        </div>
+        {!compact && (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {affiliate.identity_number && (
+              <Badge variant="outline" className="border-white/20 bg-white/5 text-foreground/70 text-xs">
+                {highlightText(affiliate.identity_number, searchQuery)}
+              </Badge>
+            )}
+            <ChevronRight className="h-4 w-4 text-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </div>
+        )}
       </div>
-      <div className="mt-4 flex flex-wrap gap-4 text-sm text-foreground/70">
-        <span className="inline-flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" /> {location}
+      <div className={`flex flex-wrap gap-x-3 gap-y-1 text-xs text-foreground/50 ${compact ? "mt-2" : "mt-3"}`}>
+        <span className="inline-flex items-center gap-1.5">
+          <MapPin className="h-3 w-3" /> {highlightText(location, searchQuery)}
         </span>
-        {affiliate.email ? <span>{affiliate.email}</span> : null}
-        {affiliate.phoneNumber ? <span>{affiliate.phoneNumber}</span> : null}
+        {!compact && affiliate.email && <span className="truncate max-w-[200px]">{highlightText(affiliate.email, searchQuery)}</span>}
+        {!compact && affiliate.phoneNumber && <span>{highlightText(affiliate.phoneNumber, searchQuery)}</span>}
       </div>
-      {variant === "related" && typeof affiliate.match_score === "number" ? (
-        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-          <Sparkles className="h-3 w-3" /> Match score {affiliate.match_score}
+      {variant === "related" && typeof affiliate.match_score === "number" && (
+        <div className={`inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs text-primary ${compact ? "mt-2" : "mt-3"}`}>
+          <Sparkles className="h-3 w-3" /> Score: {affiliate.match_score}
         </div>
-      ) : null}
+      )}
     </button>
   );
 };
