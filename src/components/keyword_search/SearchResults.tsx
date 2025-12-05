@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { AffiliateResult, OrganizationResult, SearchResponse } from "@/services/types";
 import { OrganizationDetail, AffiliateDetail } from "./SearchResultDetail";
+import SummaryStatsBar from "./SummaryStatsBar";
 
 /**
  * Highlights occurrences of search terms within text.
@@ -244,6 +245,9 @@ const SearchResults = ({ status, lastQuery, results }: SearchResultsProps) => {
           </div>
         </div>
       </div>
+
+      {/* Summary Stats Bar */}
+      <SummaryStatsBar results={results} />
 
       {/* Primary Entities Section */}
       <section>

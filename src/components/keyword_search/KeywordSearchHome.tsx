@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import SearchResults from "./SearchResults";
 import SearchForm, { type SearchFormData } from "./SearchForm";
+import InsightsPanel from "./InsightsPanel";
 import api from "@/services/api";
 import type { SearchParams } from "@/services/types";
 import { useSearchStore } from "@/stores/searchStore";
@@ -118,6 +119,15 @@ const KeywordSearchHome = () => {
     runSearch(data);
   };
 
+  // Handler for related search clicks from insights panel
+  const handleRelatedSearch = useCallback((term: string) => {
+    runSearch({
+      searchType: "multi",
+      query: term,
+      stateFilter: lastQuery?.stateFilter ?? "All States",
+    });
+  }, [runSearch, lastQuery]);
+
   // Restore search from URL on mount if we have a query but no results yet
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -138,7 +148,7 @@ const KeywordSearchHome = () => {
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col text-foreground">
+    <div className="flex-1 flex flex-col text-foreground relative">
       
       {/* Main Content */}
       <div className={`flex-1 px-6 md:px-12 py-8 ${!results ? 'flex flex-col items-center justify-center' : ''}`}>
@@ -177,11 +187,20 @@ const KeywordSearchHome = () => {
 
         {/* Results Section - appears below search */}
         {results && (
-          <div className="max-w-6xl mx-auto w-full">
+          <div className="max-w-6xl mx-auto w-full lg:pr-16">
             <SearchResults status={status} lastQuery={lastQuery} results={results} />
           </div>
         )}
       </div>
+
+      {/* Insights Panel - collapsible side panel */}
+      {results && (
+        <InsightsPanel
+          results={results}
+          query={lastQuery?.query ?? ""}
+          onRelatedSearchClick={handleRelatedSearch}
+        />
+      )}
 
     </div>
   );
