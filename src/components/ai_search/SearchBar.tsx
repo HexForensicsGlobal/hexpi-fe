@@ -14,10 +14,10 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
   }, [initialQuery]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="relative">
-        <div className="p-0.5 border border-border/50 rounded-2xl bg-secondary shadow-2xl">
-          <div className="bg-card backdrop-blur-xl rounded-xl p-6">
+        <div className="p-0.5 border border-border/70 rounded-2xl shadow-2xl">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6">
 
             {/* Input field */}
             <div className="flex items-center">

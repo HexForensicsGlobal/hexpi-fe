@@ -17,23 +17,26 @@ export const AISearchHome = ({ className }: AISearchHomeProps) => {
   return (
     <section
       className={cn(
-        "flex-1 flex flex-col items-center justify-center text-center space-y-12",
+        "flex-1 flex flex-col items-center justify-center text-center px-6 md:px-12 py-8",
         className,
       )}>
-      <div>
-        <Badge className="bg-experimental-green/40 text-experimental-green-foreground mb-2">
+      {/* Page Header */}
+      <div className="mb-10">
+        <Badge className="bg-experimental-green/20 text-experimental-green-foreground mb-3 hover:bg-experimental-green/20">
           AI workspace
         </Badge>
-        <h1 className="text-5xl font-bold  text-foreground mb-4">
+        <h1 className="text-4xl font-semibold text-foreground mb-2">
           Assisted Data Retrieval
         </h1>
-        <p className="text-3xl text-foreground/90">What are we looking for today?</p>
+        <p className="text-lg text-foreground/50 max-w-lg mx-auto">
+          Ask questions in natural language, let AI analyze and retrieve relevant data
+        </p>
       </div>
 
-      <div className="w-full max-w-3xl space-y-6">
+      {/* Search Section */}
+      <div className="w-full max-w-2xl space-y-6">
         <SearchBar initialQuery={initialQuery} />
         <QuickActions />
-        {/* <InfoCards /> */}
       </div>
     </section>
   );
