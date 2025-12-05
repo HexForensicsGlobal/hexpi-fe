@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import SearchResults from "./SearchResults";
 import SearchForm, { type SearchFormData } from "./SearchForm";
-import PageHighlights from "./PageHighlights";
 import api from "@/services/api";
 import type { SearchParams } from "@/services/types";
 import { useSearchStore } from "@/stores/searchStore";
+import { Badge } from "@/components/ui/badge";
 
 interface PrefillState {
   prefill?: {
@@ -47,7 +46,7 @@ const KeywordSearchHome = () => {
       case "email":
         return data.email?.trim() ?? "";
       case "address":
-        return [data.street, data.city].filter(Boolean).join(" ").trim();
+        return data.street?.trim() ?? "";
       case "business":
         return data.businessName?.trim() ?? data.query.trim();
       case "person":
@@ -57,17 +56,13 @@ const KeywordSearchHome = () => {
     }
   }, []);
 
-  const deriveSearchType = useCallback((searchType: SearchFormData["searchType"], selectedEntities?: string[]): SearchParams["search_type"] => {
+  const deriveSearchType = useCallback((searchType: SearchFormData["searchType"]): SearchParams["search_type"] => {
     if (searchType === "business" || searchType === "address") {
       return "organizations";
     }
 
     if (searchType === "person" || searchType === "phone" || searchType === "email") {
       return "affiliates";
-    }
-
-    if (searchType === "multi" && selectedEntities && selectedEntities.length === 1) {
-      return selectedEntities[0] === "business" ? "organizations" : "affiliates";
     }
 
     return "both";
@@ -94,7 +89,7 @@ const KeywordSearchHome = () => {
       try {
         const params: SearchParams = {
           q: resolvedQuery,
-          search_type: deriveSearchType(data.searchType, data.selectedEntities),
+          search_type: deriveSearchType(data.searchType),
         };
 
         const response = await api.keywordSearch(params, controller.signal);
@@ -146,29 +141,30 @@ const KeywordSearchHome = () => {
     <div className="flex-1 flex flex-col text-foreground">
       
       {/* Main Content */}
-      <div className="flex-1 px-12 py-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px] items-start">
-          {/* Main Content Area */}
-          <div>
-            {/* Page Header */}
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Badge className="bg-experimental-green/40 text-experimental-green-foreground hover:bg-experimental-green/40">
-                  Keyword Search
-                </Badge>
-                {prefill?.query ? (
-                  <Badge variant="outline" className="border-emerald-400/50 text-emerald-300">
-                    Prefilled
-                  </Badge>
-                ) : null}
-              </div>
-              <h1 className="text-3xl font-semibold mb-2">Run Proactive Background Intelligence</h1>
-              <p className="text-sm text-foreground/70 max-w-2xl">
-                Activate a national sweep of public records, device signals, and specialty datasets to assemble an always-current profile on the entity you&#39;re vetting.
-              </p>
-            </div>
+      <div className={`flex-1 px-6 md:px-12 py-8 ${!results ? 'flex flex-col items-center justify-center' : ''}`}>
+        {/* Hero Search Section - centered when no results */}
+        <div className={`transition-all duration-500 w-full ${results ? 'mb-8' : 'text-center'}`}>
+          {/* Page Header */}
+          {!results && (
+          <div className={`mb-6 transition-all duration-300 ${results ? '' : 'mb-10'}`}>
+            
+              <Badge className="bg-experimental-green/20 text-experimental-green-foreground mb-3 hover:bg-experimental-green/20">
+                Intelligence workspace
+              </Badge>
+            
+            <h1 className={`font-semibold mb-2 transition-all duration-300 ${results ? 'text-xl text-center' : 'text-4xl'}`}>
+              Background Intelligence Search
+            </h1>
 
-            {/* Search Form Card */}
+            <p className={`text-foreground/50 mx-auto transition-all duration-300 ${results ? 'text-sm max-w-lg text-center' : 'text-lg max-w-lg'}`}>
+              Search across public records and databases, build comprehensive profiles
+            </p>
+
+          </div>
+          )}
+
+          {/* Search Form - centered and prominent */}
+          <div className={`mx-auto w-full transition-all duration-300 ${results ? 'max-w-3xl' : 'max-w-2xl'}`}>
             <SearchForm
               status={status}
               errorMessage={errorMessage ?? undefined}
@@ -176,15 +172,15 @@ const KeywordSearchHome = () => {
               initialData={initialData}
               lastQuery={lastQuery}
             />
+          </div>
+        </div>
 
-            {/* Results Section */}
+        {/* Results Section - appears below search */}
+        {results && (
+          <div className="max-w-6xl mx-auto w-full">
             <SearchResults status={status} lastQuery={lastQuery} results={results} />
           </div>
-        
-          {/* Highlights - Right panel */}
-          {/* <PageHighlights /> */}
-
-        </div>
+        )}
       </div>
 
     </div>

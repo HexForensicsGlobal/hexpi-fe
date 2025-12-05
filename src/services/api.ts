@@ -8,6 +8,7 @@ import type {
 // API Service Interface
 export interface IApiService {
   health(): Promise<HealthResponse>;
+  searchHealth(): Promise<HealthResponse>;
   keywordSearch(params: SearchParams, signal?: AbortSignal): Promise<SearchResponse>;
 }
 
@@ -48,6 +49,11 @@ class ApiService implements IApiService {
 
   async health(): Promise<HealthResponse> {
     const response = await this.client.get<HealthResponse>('/health');
+    return response.data;
+  }
+
+  async searchHealth(): Promise<HealthResponse> {
+    const response = await this.client.get<HealthResponse>('/api/v1/search/health');
     return response.data;
   }
 
