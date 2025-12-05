@@ -57,8 +57,18 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-[rgba(2,8,23,0.9)] to-black text-foreground">
-      <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 sm:px-6 pb-6 pt-10 text-sm text-foreground/80">
+    <div className="relative min-h-screen text-foreground">
+      {/* Background image layer */}
+      <div
+        className="fixed inset-0 -z-20 bg-[url('/aurura_bg.jpeg')] bg-cover bg-center"
+        aria-hidden="true"
+      />
+      {/* Blur + dark overlay */}
+      <div
+        className="fixed inset-0 -z-10 bg-black/30 backdrop-blur-[200px]"
+        aria-hidden="true"
+      />
+      <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 sm:px-6 pb-6 pt-5 text-sm text-foreground/80">
         <div className="flex items-center gap-2 sm:gap-3">
           <img src="/HEX-PI_logo.svg" alt="Hex PIP" className="h-8 w-8 sm:h-10 sm:w-10" />
           <div>
@@ -147,7 +157,7 @@ const Landing = () => {
               Verified data providers
             </div>
           </div>
-          <Badge className="mx-auto mt-6 bg-white/10 text-sm text-foreground/80">Trusted by compliance teams</Badge>
+          <Badge variant="outline" className="mx-auto mt-6 bg-white/10 text-sm text-foreground/80">Trusted by compliance teams</Badge>
             <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl">The Background Intelligence Platform</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-foreground/70">
             PIP orchestrates social, telecom, court, and specialty data so investigators can instantly see ties, locations, and risk triggers for any person or business of interest.

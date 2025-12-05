@@ -11,6 +11,12 @@
 - ensure files are located in appropriate directories
 - ensure code is well-documented with comments where necessary
 
+## Design Practice:
+- Follow modern React best practices, including functional components and hooks.
+- Prioritize clean, minimalistic, and user-friendly UI/UX designs.
+- Ensure responsive design for usability across various devices and screen sizes.
+
+
 ## Code Standard and Conventions:
 - !ensure graceful error handling and user feedback for all user interactions and data fetching operations.
 - !optimize for performance, minimizing load times and resource usage.

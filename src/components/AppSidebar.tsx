@@ -144,7 +144,7 @@ export function AppSidebar() {
             {/* Recently visited */}
             <SidebarGroup className="mt-2">
               <SidebarGroupLabel className="text-sm text-foreground mb-2">
-                Recent
+                Recent Pages
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 {recentlyVisited.length === 0 ? (
