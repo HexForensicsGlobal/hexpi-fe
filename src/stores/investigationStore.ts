@@ -15,6 +15,7 @@ import type {
   CreateInvestigationNotePayload,
   UpdateInvestigationNotePayload,
   LinkEntityPayload,
+  CaseGroup,
 } from "@/services/types";
 
 // =============================================================================
@@ -29,6 +30,11 @@ export interface InvestigationState {
   listTotal: number;
   listStatus: "idle" | "loading" | "success" | "error";
   listError: string | null;
+
+  // Groups state
+  groups: CaseGroup[];
+  groupsStatus: "idle" | "loading" | "success" | "error";
+  selectedGroupFilter: string | "all";
 
   // Detail state (active investigation)
   activeInvestigation: InvestigationDetail | null;
@@ -83,6 +89,15 @@ export interface InvestigationState {
   openAddNoteDialog: () => void;
   closeAddNoteDialog: () => void;
 
+  // Actions - Groups
+  setGroups: (groups: CaseGroup[]) => void;
+  setGroupsStatus: (status: InvestigationState["groupsStatus"]) => void;
+  addGroup: (group: CaseGroup) => void;
+  updateGroup: (id: string, updates: Partial<CaseGroup>) => void;
+  removeGroup: (id: string) => void;
+  setSelectedGroupFilter: (groupId: string | "all") => void;
+  updateInvestigationGroup: (investigationId: string, groupId: string | null) => void;
+
   // Actions - Reset
   reset: () => void;
 }
@@ -102,6 +117,7 @@ const defaultStats: InvestigationStats = {
   total: 0,
   byStatus: { draft: 0, active: 0, "on-hold": 0, closed: 0 },
   byPriority: { low: 0, medium: 0, high: 0, critical: 0 },
+  byGroup: { ungrouped: 0 },
 };
 
 const initialState = {
@@ -112,6 +128,11 @@ const initialState = {
   listTotal: 0,
   listStatus: "idle" as const,
   listError: null,
+
+  // Groups
+  groups: [] as CaseGroup[],
+  groupsStatus: "idle" as const,
+  selectedGroupFilter: "all" as string | "all",
 
   // Detail
   activeInvestigation: null,
@@ -398,6 +419,67 @@ export const useInvestigationStore = create<InvestigationState>()(
         set({ isAddNoteDialogOpen: false }, false, "closeAddNoteDialog"),
 
       // =========================================================================
+      // GROUP ACTIONS
+      // =========================================================================
+
+      setGroups: (groups) =>
+        set({ groups, groupsStatus: "success" }, false, "setGroups"),
+
+      setGroupsStatus: (status) =>
+        set({ groupsStatus: status }, false, "setGroupsStatus"),
+
+      addGroup: (group) =>
+        set(
+          (state) => ({ groups: [...state.groups, group] }),
+          false,
+          "addGroup"
+        ),
+
+      updateGroup: (id, updates) =>
+        set(
+          (state) => ({
+            groups: state.groups.map((g) =>
+              g.id === id ? { ...g, ...updates } : g
+            ),
+          }),
+          false,
+          "updateGroup"
+        ),
+
+      removeGroup: (id) =>
+        set(
+          (state) => ({
+            groups: state.groups.filter((g) => g.id !== id),
+            // Also clear filter if the removed group was selected
+            selectedGroupFilter:
+              state.selectedGroupFilter === id ? "all" : state.selectedGroupFilter,
+          }),
+          false,
+          "removeGroup"
+        ),
+
+      setSelectedGroupFilter: (groupId) =>
+        set({ selectedGroupFilter: groupId }, false, "setSelectedGroupFilter"),
+
+      updateInvestigationGroup: (investigationId, groupId) =>
+        set(
+          (state) => ({
+            investigations: state.investigations.map((inv) =>
+              inv.id === investigationId
+                ? { ...inv, groupId, updatedAt: new Date().toISOString() }
+                : inv
+            ),
+            // Also update active investigation if it matches
+            activeInvestigation:
+              state.activeInvestigation?.id === investigationId
+                ? { ...state.activeInvestigation, groupId, updatedAt: new Date().toISOString() }
+                : state.activeInvestigation,
+          }),
+          false,
+          "updateInvestigationGroup"
+        ),
+
+      // =========================================================================
       // RESET
       // =========================================================================
 
@@ -417,6 +499,12 @@ export const selectInvestigationsByStatus = (status: InvestigationStatus) => (st
 export const selectInvestigationsByPriority = (priority: InvestigationPriority) => (state: InvestigationState) =>
   state.investigations.filter((inv) => inv.priority === priority);
 
+export const selectInvestigationsByGroup = (groupId: string | null) => (state: InvestigationState) =>
+  state.investigations.filter((inv) => inv.groupId === groupId);
+
+export const selectUngroupedInvestigations = (state: InvestigationState) =>
+  state.investigations.filter((inv) => inv.groupId === null);
+
 export const selectActiveNotesByType = (type: InvestigationNote["entryType"]) => (state: InvestigationState) =>
   state.activeInvestigation?.notes.filter((note) => note.entryType === type) ?? [];
 
@@ -428,3 +516,4 @@ export const selectEntitiesByRole = (role: InvestigationEntity["role"]) => (stat
 
 export const selectEntitiesByType = (type: InvestigationEntity["entityType"]) => (state: InvestigationState) =>
   state.activeInvestigation?.entities.filter((entity) => entity.entityType === type) ?? [];
+

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -14,20 +14,41 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
   AlertCircle,
   Briefcase,
   ChevronRight,
   Clock,
   Filter,
+  Folder,
   FolderOpen,
+  MoreHorizontal,
   Pause,
+  Pencil,
   Plus,
   Search,
+  Trash2,
   X,
 } from "lucide-react";
 import { useInvestigationStore } from "@/stores/investigationStore";
 import { api } from "@/services/api";
-import type { InvestigationStatus, InvestigationPriority } from "@/services/types";
+import type { InvestigationStatus, InvestigationPriority, CaseGroup } from "@/services/types";
 import InvestigationForm from "./InvestigationForm";
 
 // Status configuration
@@ -61,6 +82,13 @@ const InvestigationsHome = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<InvestigationStatus | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<InvestigationPriority | "all">("all");
+  const [groupFilter, setGroupFilter] = useState<string | "all">("all");
+  
+  // Group management dialog state
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<CaseGroup | null>(null);
+  const [groupFormData, setGroupFormData] = useState({ name: "", description: "" });
+  const [isGroupFormLoading, setIsGroupFormLoading] = useState(false);
 
   const {
     investigations,
@@ -76,6 +104,14 @@ const InvestigationsHome = () => {
     openCreateDialog,
     closeCreateDialog,
     addInvestigationToList,
+    groups,
+    groupsStatus,
+    setGroups,
+    setGroupsStatus,
+    addGroup,
+    updateGroup,
+    removeGroup,
+    updateInvestigationGroup,
   } = useInvestigationStore();
 
   // Check for ?action=new query param to auto-open create dialog
@@ -87,6 +123,22 @@ const InvestigationsHome = () => {
     }
   }, [searchParams, openCreateDialog, setSearchParams]);
 
+  // Fetch groups on mount
+  useEffect(() => {
+    const fetchGroups = async () => {
+      setGroupsStatus("loading");
+      try {
+        const groupsData = await api.getGroups();
+        setGroups(groupsData);
+        setGroupsStatus("success");
+      } catch (error) {
+        console.error("Failed to load groups:", error);
+        setGroupsStatus("error");
+      }
+    };
+    fetchGroups();
+  }, []);
+
   // Fetch investigations on mount and when filters change
   useEffect(() => {
     const fetchInvestigations = async () => {
@@ -97,6 +149,7 @@ const InvestigationsHome = () => {
           search: searchQuery || undefined,
           status: statusFilter !== "all" ? statusFilter : undefined,
           priority: priorityFilter !== "all" ? priorityFilter : undefined,
+          groupId: groupFilter !== "all" ? groupFilter : undefined,
         };
         const response = await api.getInvestigations(params);
         setInvestigations(response.investigations, response.total, response.stats);
@@ -108,13 +161,20 @@ const InvestigationsHome = () => {
     // Debounce search
     const timeoutId = setTimeout(fetchInvestigations, searchQuery ? 300 : 0);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, statusFilter, priorityFilter, listParams.sortBy, listParams.sortOrder]);
+  }, [searchQuery, statusFilter, priorityFilter, groupFilter, listParams.sortBy, listParams.sortOrder]);
 
   // Filter counts for badges
   const filterCounts = useMemo(() => ({
     all: stats.total,
     ...stats.byStatus,
   }), [stats]);
+
+  // Get group name by ID helper
+  const getGroupName = useCallback((groupId: string | null) => {
+    if (!groupId) return null;
+    const group = groups.find(g => g.id === groupId);
+    return group?.name ?? null;
+  }, [groups]);
 
   // Handle investigation card click
   const handleInvestigationClick = (id: string) => {
@@ -133,9 +193,89 @@ const InvestigationsHome = () => {
     setSearchQuery("");
     setStatusFilter("all");
     setPriorityFilter("all");
+    setGroupFilter("all");
   };
 
-  const hasActiveFilters = searchQuery || statusFilter !== "all" || priorityFilter !== "all";
+  const hasActiveFilters = searchQuery || statusFilter !== "all" || priorityFilter !== "all" || groupFilter !== "all";
+
+  // Group management handlers
+  const openGroupDialog = (group?: CaseGroup) => {
+    if (group) {
+      setEditingGroup(group);
+      setGroupFormData({ name: group.name, description: group.description || "" });
+    } else {
+      setEditingGroup(null);
+      setGroupFormData({ name: "", description: "" });
+    }
+    setIsGroupDialogOpen(true);
+  };
+
+  const closeGroupDialog = () => {
+    setIsGroupDialogOpen(false);
+    setEditingGroup(null);
+    setGroupFormData({ name: "", description: "" });
+  };
+
+  const handleGroupSubmit = async () => {
+    if (!groupFormData.name.trim()) return;
+    
+    setIsGroupFormLoading(true);
+    try {
+      if (editingGroup) {
+        // Update existing group
+        const updated = await api.updateGroup(editingGroup.id, {
+          name: groupFormData.name.trim(),
+          description: groupFormData.description.trim() || undefined,
+        });
+        if (updated) {
+          updateGroup(editingGroup.id, updated);
+        }
+      } else {
+        // Create new group
+        const created = await api.createGroup({
+          name: groupFormData.name.trim(),
+          description: groupFormData.description.trim() || undefined,
+        });
+        addGroup(created);
+      }
+      closeGroupDialog();
+    } catch (error) {
+      console.error("Failed to save group:", error);
+    } finally {
+      setIsGroupFormLoading(false);
+    }
+  };
+
+  const handleDeleteGroup = async (groupId: string) => {
+    try {
+      await api.deleteGroup(groupId);
+      removeGroup(groupId);
+      // Reset filter if the deleted group was selected
+      if (groupFilter === groupId) {
+        setGroupFilter("all");
+      }
+    } catch (error) {
+      console.error("Failed to delete group:", error);
+    }
+  };
+
+  // Handler to assign investigation to a group (callable from UI)
+  const handleAssignToGroup = async (investigationId: string, newGroupId: string | null) => {
+    const investigation = investigations.find(inv => inv.id === investigationId);
+    if (!investigation || investigation.groupId === newGroupId) return;
+    
+    // Optimistically update local state
+    updateInvestigationGroup(investigationId, newGroupId);
+    
+    // Call API to persist change
+    try {
+      await api.assignInvestigationToGroup(investigationId, newGroupId);
+    } catch (error) {
+      // Revert on error
+      console.error("Failed to update investigation group:", error);
+      updateInvestigationGroup(investigationId, investigation.groupId);
+    }
+  };
 
   return (
     <div className="flex-1 px-6 md:px-16 py-10 text-foreground">
@@ -210,6 +350,87 @@ const InvestigationsHome = () => {
             <SelectItem value="low">Low</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* Group Filter with Management */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-[160px] justify-between bg-white/5 border-white/10">
+              <span className="flex items-center gap-2">
+                <Folder className="h-4 w-4" />
+                <span className="truncate">
+                  {groupFilter === "all" 
+                    ? "All Groups" 
+                    : groupFilter === "ungrouped"
+                    ? "Ungrouped"
+                    : getGroupName(groupFilter) || "Unknown"}
+                </span>
+              </span>
+              <ChevronRight className="h-4 w-4 rotate-90" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-[200px]">
+            <DropdownMenuItem onClick={() => setGroupFilter("all")}>
+              <Folder className="h-4 w-4 mr-2" />
+              All Groups
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setGroupFilter("ungrouped")}>
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Ungrouped
+              {stats.byGroup.ungrouped > 0 && (
+                <Badge variant="secondary" className="ml-auto text-xs">
+                  {stats.byGroup.ungrouped}
+                </Badge>
+              )}
+            </DropdownMenuItem>
+            {groups.length > 0 && <DropdownMenuSeparator />}
+            {groups.map((group) => (
+              <div key={group.id} className="flex items-center group">
+                <DropdownMenuItem 
+                  className="flex-1"
+                  onClick={() => setGroupFilter(group.id)}
+                >
+                  <Folder className="h-4 w-4 mr-2" />
+                  <span className="truncate">{group.name}</span>
+                  {stats.byGroup[group.id] !== undefined && (
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {stats.byGroup[group.id]}
+                    </Badge>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 mr-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" side="right">
+                    <DropdownMenuItem onClick={() => openGroupDialog(group)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleDeleteGroup(group.id)}
+                      className="text-red-400"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => openGroupDialog()}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Group
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Select
           value={listParams.sortBy || "updatedAt"}
@@ -291,6 +512,7 @@ const InvestigationsHome = () => {
           const statusCfg = statusConfig[investigation.status];
           const priorityCfg = priorityConfig[investigation.priority];
           const StatusIcon = statusCfg.icon;
+          const groupName = getGroupName(investigation.groupId);
 
           return (
             <Card
@@ -301,11 +523,17 @@ const InvestigationsHome = () => {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    {/* Case number and status */}
-                    <div className="flex items-center gap-3 mb-2">
+                    {/* Case number, group, and status */}
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <span className="text-xs font-mono text-foreground/50">
                         {investigation.caseNumber}
                       </span>
+                      {groupName && (
+                        <Badge variant="outline" className="text-xs bg-white/5 border-white/20">
+                          <Folder className="h-3 w-3 mr-1" />
+                          {groupName}
+                        </Badge>
+                      )}
                       <Badge variant="outline" className={statusCfg.color}>
                         <StatusIcon className="h-3 w-3 mr-1" />
                         {statusCfg.label}
@@ -363,6 +591,56 @@ const InvestigationsHome = () => {
         onOpenChange={(open) => (open ? openCreateDialog() : closeCreateDialog())}
         onSuccess={handleInvestigationCreated}
       />
+
+      {/* Group Management Dialog */}
+      <Dialog open={isGroupDialogOpen} onOpenChange={(open) => !open && closeGroupDialog()}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingGroup ? "Edit Group" : "Create New Group"}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGroup 
+                ? "Update the group name and description."
+                : "Create a new group to organize your investigations."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="groupName">Name</Label>
+              <Input
+                id="groupName"
+                placeholder="Enter group name"
+                value={groupFormData.name}
+                onChange={(e) => setGroupFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="bg-white/5 border-white/10"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="groupDescription">Description (optional)</Label>
+              <Textarea
+                id="groupDescription"
+                placeholder="Enter group description"
+                value={groupFormData.description}
+                onChange={(e) => setGroupFormData(prev => ({ ...prev, description: e.target.value }))}
+                className="bg-white/5 border-white/10"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeGroupDialog}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleGroupSubmit} 
+              disabled={!groupFormData.name.trim() || isGroupFormLoading}
+            >
+              {isGroupFormLoading ? "Saving..." : editingGroup ? "Update" : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

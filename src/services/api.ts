@@ -16,6 +16,9 @@ import type {
   LinkEntityPayload,
   OrganizationResult,
   AffiliateResult,
+  CaseGroup,
+  CreateCaseGroupPayload,
+  UpdateCaseGroupPayload,
 } from './types';
 
 // Import mock services for investigation (backend not yet available)
@@ -30,6 +33,11 @@ import {
   mockDeleteNote,
   mockLinkEntity,
   mockUnlinkEntity,
+  mockGetGroups,
+  mockCreateGroup,
+  mockUpdateGroup,
+  mockDeleteGroup,
+  mockAssignInvestigationToGroup,
 } from './investigation/mockInvestigationData';
 
 // =============================================================================
@@ -63,6 +71,13 @@ export interface IApiService {
     entitySnapshot: OrganizationResult | AffiliateResult
   ): Promise<InvestigationEntity | null>;
   unlinkEntityFromInvestigation(investigationId: string, entityId: string): Promise<boolean>;
+
+  // Case Groups
+  getGroups(): Promise<CaseGroup[]>;
+  createGroup(payload: CreateCaseGroupPayload): Promise<CaseGroup>;
+  updateGroup(id: string, payload: UpdateCaseGroupPayload): Promise<CaseGroup | null>;
+  deleteGroup(id: string): Promise<boolean>;
+  assignInvestigationToGroup(investigationId: string, groupId: string | null): Promise<Investigation | null>;
 }
 
 
@@ -326,6 +341,79 @@ class ApiService implements IApiService {
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         return false;
+      }
+      throw error;
+    }
+  }
+
+  // ===========================================================================
+  // CASE GROUPS
+  // ===========================================================================
+
+  async getGroups(): Promise<CaseGroup[]> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockGetGroups();
+    }
+
+    const response = await this.client.get<CaseGroup[]>('/api/v1/groups');
+    return response.data;
+  }
+
+  async createGroup(payload: CreateCaseGroupPayload): Promise<CaseGroup> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockCreateGroup(payload);
+    }
+
+    const response = await this.client.post<CaseGroup>('/api/v1/groups', payload);
+    return response.data;
+  }
+
+  async updateGroup(id: string, payload: UpdateCaseGroupPayload): Promise<CaseGroup | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockUpdateGroup(id, payload);
+    }
+
+    try {
+      const response = await this.client.patch<CaseGroup>(`/api/v1/groups/${id}`, payload);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async deleteGroup(id: string): Promise<boolean> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockDeleteGroup(id);
+    }
+
+    try {
+      await this.client.delete(`/api/v1/groups/${id}`);
+      return true;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return false;
+      }
+      throw error;
+    }
+  }
+
+  async assignInvestigationToGroup(investigationId: string, groupId: string | null): Promise<Investigation | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockAssignInvestigationToGroup(investigationId, groupId);
+    }
+
+    try {
+      const response = await this.client.patch<Investigation>(
+        `/api/v1/investigations/${investigationId}/group`,
+        { groupId }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
       }
       throw error;
     }

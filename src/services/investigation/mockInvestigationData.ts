@@ -13,6 +13,9 @@ import type {
   InvestigationListResponse,
   OrganizationResult,
   AffiliateResult,
+  CaseGroup,
+  CreateCaseGroupPayload,
+  UpdateCaseGroupPayload,
 } from "@/services/types";
 
 // =============================================================================
@@ -47,6 +50,40 @@ export const mockUsers = [
 ];
 
 export const currentUserId = "user-1"; // Simulates logged-in user
+
+// =============================================================================
+// MOCK CASE GROUPS
+// =============================================================================
+
+export const mockCaseGroups: CaseGroup[] = [
+  {
+    id: "group-1",
+    name: "Financial Crimes",
+    description: "Fraud, embezzlement, and financial irregularities",
+    caseCount: 2,
+    createdAt: "2025-01-15T10:00:00Z",
+    updatedAt: "2025-11-15T09:30:00Z",
+    createdBy: "user-1",
+  },
+  {
+    id: "group-2",
+    name: "Government Contracts",
+    description: "Public sector procurement and contract investigations",
+    caseCount: 1,
+    createdAt: "2025-02-01T08:00:00Z",
+    updatedAt: "2025-11-08T11:45:00Z",
+    createdBy: "user-2",
+  },
+  {
+    id: "group-3",
+    name: "Due Diligence",
+    description: "Background checks and identity verification",
+    caseCount: 1,
+    createdAt: "2025-03-10T14:00:00Z",
+    updatedAt: "2025-10-05T14:20:00Z",
+    createdBy: "user-1",
+  },
+];
 
 // =============================================================================
 // MOCK ENTITY SNAPSHOTS
@@ -164,6 +201,7 @@ export const mockInvestigations: Investigation[] = [
     updatedAt: "2025-12-07T14:22:00Z",
     closedAt: null,
     createdBy: "user-1",
+    groupId: "group-1",
   },
   {
     id: "inv-002",
@@ -181,6 +219,7 @@ export const mockInvestigations: Investigation[] = [
     updatedAt: "2025-12-06T16:10:00Z",
     closedAt: null,
     createdBy: "user-2",
+    groupId: "group-2",
   },
   {
     id: "inv-003",
@@ -198,6 +237,7 @@ export const mockInvestigations: Investigation[] = [
     updatedAt: "2025-11-28T10:30:00Z",
     closedAt: null,
     createdBy: "user-3",
+    groupId: null,
   },
   {
     id: "inv-004",
@@ -215,6 +255,7 @@ export const mockInvestigations: Investigation[] = [
     updatedAt: "2025-10-05T14:20:00Z",
     closedAt: null,
     createdBy: "user-1",
+    groupId: "group-3",
   },
   {
     id: "inv-005",
@@ -232,6 +273,7 @@ export const mockInvestigations: Investigation[] = [
     updatedAt: "2025-10-30T17:45:00Z",
     closedAt: "2025-10-30T17:45:00Z",
     createdBy: "user-4",
+    groupId: null,
   },
   {
     id: "inv-006",
@@ -249,6 +291,7 @@ export const mockInvestigations: Investigation[] = [
     updatedAt: "2025-09-15T11:30:00Z",
     closedAt: "2025-09-15T11:30:00Z",
     createdBy: "user-2",
+    groupId: "group-1",
   },
 ];
 
@@ -566,7 +609,21 @@ export const mockInvestigationStats: InvestigationStats = {
     high: mockInvestigations.filter((i) => i.priority === "high").length,
     critical: mockInvestigations.filter((i) => i.priority === "critical").length,
   },
+  byGroup: computeByGroupStats(mockInvestigations),
 };
+
+// Helper to compute byGroup stats
+function computeByGroupStats(investigations: Investigation[]): Record<string, number> {
+  const byGroup: Record<string, number> = { ungrouped: 0 };
+  investigations.forEach((inv) => {
+    if (inv.groupId) {
+      byGroup[inv.groupId] = (byGroup[inv.groupId] || 0) + 1;
+    } else {
+      byGroup.ungrouped += 1;
+    }
+  });
+  return byGroup;
+}
 
 // =============================================================================
 // MOCK LIST RESPONSE
@@ -586,6 +643,7 @@ export const mockInvestigationListResponse: InvestigationListResponse = {
 
 // Clone arrays to allow mutations during mock operations
 let investigationsStore = [...mockInvestigations];
+let groupsStore = [...mockCaseGroups];
 let notesStore: Record<string, InvestigationNote[]> = {
   "inv-001": [...mockNotesInv001],
 };
@@ -625,6 +683,15 @@ export async function mockGetInvestigations(
   if (params.priority) {
     const priorities = Array.isArray(params.priority) ? params.priority : [params.priority];
     filtered = filtered.filter((inv) => priorities.includes(inv.priority));
+  }
+
+  // Apply group filter
+  if (params.groupId) {
+    if (params.groupId === "ungrouped") {
+      filtered = filtered.filter((inv) => inv.groupId === null);
+    } else {
+      filtered = filtered.filter((inv) => inv.groupId === params.groupId);
+    }
   }
 
   // Apply search
@@ -682,6 +749,7 @@ export async function mockGetInvestigations(
       high: investigationsStore.filter((i) => i.priority === "high").length,
       critical: investigationsStore.filter((i) => i.priority === "critical").length,
     },
+    byGroup: computeByGroupStats(investigationsStore),
   };
 
   return {
@@ -740,6 +808,7 @@ export async function mockCreateInvestigation(
     updatedAt: now,
     closedAt: null,
     createdBy: currentUserId,
+    groupId: null,
   };
 
   investigationsStore = [newInvestigation, ...investigationsStore];
@@ -1052,11 +1121,150 @@ export async function mockUnlinkEntity(investigationId: string, entityId: string
   return true;
 }
 
+// =============================================================================
+// CASE GROUP CRUD FUNCTIONS
+// =============================================================================
+
+/**
+ * Get all case groups
+ */
+export async function mockGetGroups(): Promise<CaseGroup[]> {
+  await delay(200);
+  
+  // Update case counts
+  return groupsStore.map((group) => ({
+    ...group,
+    caseCount: investigationsStore.filter((inv) => inv.groupId === group.id).length,
+  }));
+}
+
+/**
+ * Create a new case group
+ */
+export async function mockCreateGroup(payload: CreateCaseGroupPayload): Promise<CaseGroup> {
+  await delay(300);
+
+  const now = new Date().toISOString();
+  const newGroup: CaseGroup = {
+    id: generateMockId(),
+    name: payload.name,
+    description: payload.description,
+    caseCount: 0,
+    createdAt: now,
+    updatedAt: now,
+    createdBy: currentUserId,
+  };
+
+  groupsStore = [...groupsStore, newGroup];
+  return newGroup;
+}
+
+/**
+ * Update a case group
+ */
+export async function mockUpdateGroup(
+  id: string,
+  payload: UpdateCaseGroupPayload
+): Promise<CaseGroup | null> {
+  await delay(300);
+
+  const groupIndex = groupsStore.findIndex((g) => g.id === id);
+  if (groupIndex === -1) return null;
+
+  const now = new Date().toISOString();
+  const updatedGroup: CaseGroup = {
+    ...groupsStore[groupIndex],
+    ...payload,
+    updatedAt: now,
+    caseCount: investigationsStore.filter((inv) => inv.groupId === id).length,
+  };
+
+  groupsStore[groupIndex] = updatedGroup;
+  return updatedGroup;
+}
+
+/**
+ * Delete a case group (unassigns all cases in the group)
+ */
+export async function mockDeleteGroup(id: string): Promise<boolean> {
+  await delay(300);
+
+  const groupIndex = groupsStore.findIndex((g) => g.id === id);
+  if (groupIndex === -1) return false;
+
+  // Unassign all investigations from this group
+  investigationsStore = investigationsStore.map((inv) =>
+    inv.groupId === id ? { ...inv, groupId: null, updatedAt: new Date().toISOString() } : inv
+  );
+
+  // Remove the group
+  groupsStore.splice(groupIndex, 1);
+  return true;
+}
+
+/**
+ * Assign an investigation to a group (or unassign by passing null)
+ */
+export async function mockAssignInvestigationToGroup(
+  investigationId: string,
+  groupId: string | null
+): Promise<Investigation | null> {
+  await delay(200);
+
+  const invIndex = investigationsStore.findIndex((inv) => inv.id === investigationId);
+  if (invIndex === -1) return null;
+
+  // Verify group exists if groupId is provided
+  if (groupId && !groupsStore.find((g) => g.id === groupId)) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const oldGroupId = investigationsStore[invIndex].groupId;
+  const updatedInvestigation: Investigation = {
+    ...investigationsStore[invIndex],
+    groupId,
+    updatedAt: now,
+  };
+
+  investigationsStore[invIndex] = updatedInvestigation;
+
+  // Add timeline event
+  if (!timelineStore[investigationId]) timelineStore[investigationId] = [];
+  
+  if (groupId) {
+    const groupName = groupsStore.find((g) => g.id === groupId)?.name || "Unknown";
+    timelineStore[investigationId].push({
+      id: generateMockId(),
+      investigationId,
+      eventType: "group_assigned",
+      description: `Assigned to group: ${groupName}`,
+      metadata: { groupId, groupName, previousGroupId: oldGroupId },
+      occurredAt: now,
+      triggeredBy: currentUserId,
+    });
+  } else if (oldGroupId) {
+    const oldGroupName = groupsStore.find((g) => g.id === oldGroupId)?.name || "Unknown";
+    timelineStore[investigationId].push({
+      id: generateMockId(),
+      investigationId,
+      eventType: "group_unassigned",
+      description: `Removed from group: ${oldGroupName}`,
+      metadata: { previousGroupId: oldGroupId },
+      occurredAt: now,
+      triggeredBy: currentUserId,
+    });
+  }
+
+  return updatedInvestigation;
+}
+
 /**
  * Reset mock data to initial state (useful for testing)
  */
 export function resetMockData(): void {
   investigationsStore = [...mockInvestigations];
+  groupsStore = [...mockCaseGroups];
   notesStore = { "inv-001": [...mockNotesInv001] };
   entitiesStore = { "inv-001": [...mockEntitiesInv001] };
   timelineStore = { "inv-001": [...mockTimelineInv001] };

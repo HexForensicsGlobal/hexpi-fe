@@ -161,7 +161,45 @@ export type InvestigationTimelineEventType =
   | 'priority_changed'
   | 'details_updated'
   | 'collaborator_added'
-  | 'collaborator_removed';
+  | 'collaborator_removed'
+  | 'group_assigned'
+  | 'group_unassigned';
+
+/**
+ * Case group for organizing related investigations
+ */
+export interface CaseGroup {
+  /** Unique identifier (UUID) */
+  id: string;
+  /** Group display name */
+  name: string;
+  /** Optional description */
+  description?: string;
+  /** Number of cases in this group (computed) */
+  caseCount?: number;
+  /** ISO timestamp when created */
+  createdAt: string;
+  /** ISO timestamp when last updated */
+  updatedAt: string;
+  /** User ID who created the group */
+  createdBy: string;
+}
+
+/**
+ * Payload for creating a case group
+ */
+export interface CreateCaseGroupPayload {
+  name: string;
+  description?: string;
+}
+
+/**
+ * Payload for updating a case group
+ */
+export interface UpdateCaseGroupPayload {
+  name?: string;
+  description?: string;
+}
 
 /**
  * Main investigation/case entity
@@ -195,6 +233,8 @@ export interface Investigation {
   closedAt: string | null;
   /** User ID who created the investigation */
   createdBy: string;
+  /** ID of the group this investigation belongs to (null if ungrouped) */
+  groupId: string | null;
 }
 
 /**
@@ -274,6 +314,8 @@ export interface InvestigationStats {
   total: number;
   byStatus: Record<InvestigationStatus, number>;
   byPriority: Record<InvestigationPriority, number>;
+  /** Count of cases by group ID (includes 'ungrouped' key for null groupId) */
+  byGroup: Record<string, number>;
 }
 
 /**
@@ -284,6 +326,8 @@ export interface InvestigationListParams {
   status?: InvestigationStatus | InvestigationStatus[];
   /** Filter by priority */
   priority?: InvestigationPriority | InvestigationPriority[];
+  /** Filter by group ID (use 'ungrouped' for cases without a group) */
+  groupId?: string | 'ungrouped';
   /** Search query for title/description */
   search?: string;
   /** Filter by tags (any match) */
