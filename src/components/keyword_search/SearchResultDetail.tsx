@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -6,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Building2,
@@ -21,8 +23,10 @@ import {
   CreditCard,
   Users,
   Sparkles,
+  Plus,
 } from "lucide-react";
 import type { AffiliateResult, OrganizationResult } from "@/services/types";
+import { AddToInvestigationDialog } from "@/components/investigations";
 
 interface DetailItemProps {
   icon: React.ElementType;
@@ -52,7 +56,9 @@ interface OrganizationDetailProps {
 type OrgTab = "overview" | "contact" | "details";
 
 export const OrganizationDetail = ({ organization, open, onOpenChange }: OrganizationDetailProps) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<OrgTab>("overview");
+  const [addToInvestigationOpen, setAddToInvestigationOpen] = useState(false);
 
   if (!organization) return null;
   
@@ -63,32 +69,48 @@ export const OrganizationDetail = ({ organization, open, onOpenChange }: Organiz
     { id: "contact", label: "Contact" },
     { id: "details", label: "Details" },
   ];
+
+  const handleAddToInvestigationSuccess = (investigationId: string) => {
+    navigate(`/app/investigations/${investigationId}`);
+  };
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] p-0 border-white/10 bg-background/95 backdrop-blur-xl">
-        {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/10">
-          <div className="flex items-center gap-2 text-primary mb-2">
-            <Building2 className="h-4 w-4" />
-            <span className="text-xs uppercase tracking-wider font-medium">Organization</span>
-          </div>
-          <DialogTitle className="text-xl font-semibold">{name}</DialogTitle>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <Badge variant="outline" className="border-white/20 bg-white/5 text-xs">
-              {organization.status || "Status unavailable"}
-            </Badge>
-            {organization.rcNumber && (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[85vh] p-0 border-white/10 bg-background/95 backdrop-blur-xl">
+          {/* Header */}
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-primary">
+                <Building2 className="h-4 w-4" />
+                <span className="text-xs uppercase tracking-wider font-medium">Organization</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white/20 bg-white/5 text-xs"
+                onClick={() => setAddToInvestigationOpen(true)}
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add to Investigation
+              </Button>
+            </div>
+            <DialogTitle className="text-xl font-semibold mt-2">{name}</DialogTitle>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge variant="outline" className="border-white/20 bg-white/5 text-xs">
-                RC {organization.rcNumber}
+                {organization.status || "Status unavailable"}
               </Badge>
-            )}
-            {typeof organization.match_score === "number" && (
-              <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">
-                <Sparkles className="h-3 w-3 mr-1" />
-                Score: {organization.match_score}
-              </Badge>
-            )}
+              {organization.rcNumber && (
+                <Badge variant="outline" className="border-white/20 bg-white/5 text-xs">
+                  RC {organization.rcNumber}
+                </Badge>
+              )}
+              {typeof organization.match_score === "number" && (
+                <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Score: {organization.match_score}
+                </Badge>
+              )}
           </div>
         </DialogHeader>
 
@@ -154,6 +176,16 @@ export const OrganizationDetail = ({ organization, open, onOpenChange }: Organiz
         </ScrollArea>
       </DialogContent>
     </Dialog>
+
+    {/* Add to Investigation Dialog */}
+    <AddToInvestigationDialog
+      open={addToInvestigationOpen}
+      onOpenChange={setAddToInvestigationOpen}
+      entityType="organization"
+      entity={organization}
+      onSuccess={handleAddToInvestigationSuccess}
+    />
+    </>
   );
 };
 
@@ -166,7 +198,9 @@ interface AffiliateDetailProps {
 type AffTab = "overview" | "contact" | "professional";
 
 export const AffiliateDetail = ({ affiliate, open, onOpenChange }: AffiliateDetailProps) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<AffTab>("overview");
+  const [addToInvestigationOpen, setAddToInvestigationOpen] = useState(false);
 
   if (!affiliate) return null;
   
@@ -181,16 +215,32 @@ export const AffiliateDetail = ({ affiliate, open, onOpenChange }: AffiliateDeta
     { id: "professional", label: "Professional" },
   ];
 
+  const handleAddToInvestigationSuccess = (investigationId: string) => {
+    navigate(`/app/investigations/${investigationId}`);
+  };
+
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 border-white/10 bg-background/95 backdrop-blur-xl">
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/10">
-          <div className="flex items-center gap-2 text-primary mb-2">
-            <User className="h-4 w-4" />
-            <span className="text-xs uppercase tracking-wider font-medium">Affiliate</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-primary">
+              <User className="h-4 w-4" />
+              <span className="text-xs uppercase tracking-wider font-medium">Affiliate</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-white/20 bg-white/5 text-xs"
+              onClick={() => setAddToInvestigationOpen(true)}
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Add to Investigation
+            </Button>
           </div>
-          <DialogTitle className="text-xl font-semibold">{name}</DialogTitle>
+          <DialogTitle className="text-xl font-semibold mt-2">{name}</DialogTitle>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {affiliate.affiliate_type && (
               <Badge variant="outline" className="border-white/20 bg-white/5 text-xs">
@@ -278,5 +328,15 @@ export const AffiliateDetail = ({ affiliate, open, onOpenChange }: AffiliateDeta
         </ScrollArea>
       </DialogContent>
     </Dialog>
+
+    {/* Add to Investigation Dialog */}
+    <AddToInvestigationDialog
+      open={addToInvestigationOpen}
+      onOpenChange={setAddToInvestigationOpen}
+      entityType="affiliate"
+      entity={affiliate}
+      onSuccess={handleAddToInvestigationSuccess}
+    />
+    </>
   );
 };
