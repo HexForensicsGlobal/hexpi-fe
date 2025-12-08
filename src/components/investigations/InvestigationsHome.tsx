@@ -142,7 +142,7 @@ const InvestigationsHome = () => {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <Badge className="bg-primary/20 text-primary mb-3 hover:bg-primary/20">
+          <Badge className="bg-experimental-green/20 text-experimental-green-foreground mb-3 hover:bg-experimental-green/20">
             Case Management
           </Badge>
           <h1 className="mt-4 text-3xl font-semibold">Investigations</h1>

@@ -32,7 +32,7 @@ export const generateMockId = (): string => {
 let caseCounter = 41;
 export const generateCaseNumber = (): string => {
   caseCounter += 1;
-  return `INV-2025-${String(caseCounter).padStart(4, "0")}`;
+  return `CASE-2025-${String(caseCounter).padStart(4, "0")}`;
 };
 
 // =============================================================================
@@ -150,7 +150,7 @@ const mockAffiliateSnapshot3: AffiliateResult = {
 export const mockInvestigations: Investigation[] = [
   {
     id: "inv-001",
-    caseNumber: "INV-2025-0042",
+    caseNumber: "CASE-2025-0042",
     title: "Apex Global Ventures - Financial Irregularities",
     description:
       "Investigation into suspected fraudulent transactions and shell company networks connected to Apex Global Ventures Ltd. Initial red flags identified through political contribution disclosures.",
@@ -167,7 +167,7 @@ export const mockInvestigations: Investigation[] = [
   },
   {
     id: "inv-002",
-    caseNumber: "INV-2025-0041",
+    caseNumber: "CASE-2025-0041",
     title: "Sterling Infrastructure - Contract Kickbacks",
     description:
       "Examining potential kickback schemes in government infrastructure contracts awarded to Sterling Infrastructure Partners. Focus on Abuja-based projects from 2020-2024.",
@@ -184,7 +184,7 @@ export const mockInvestigations: Investigation[] = [
   },
   {
     id: "inv-003",
-    caseNumber: "INV-2025-0038",
+    caseNumber: "CASE-2025-0038",
     title: "Cross-Border Money Movement - West Africa",
     description:
       "Tracing suspicious cross-border fund transfers involving multiple Nigerian and Ghanaian entities. Possible trade-based money laundering through over/under invoicing.",
@@ -201,7 +201,7 @@ export const mockInvestigations: Investigation[] = [
   },
   {
     id: "inv-004",
-    caseNumber: "INV-2025-0035",
+    caseNumber: "CASE-2025-0035",
     title: "Dual Citizenship Due Diligence - Tarek I.",
     description:
       "Background verification for individual claiming dual Nigerian-Lebanese citizenship. Travel pattern anomalies detected requiring further investigation.",
@@ -218,7 +218,7 @@ export const mockInvestigations: Investigation[] = [
   },
   {
     id: "inv-005",
-    caseNumber: "INV-2025-0028",
+    caseNumber: "CASE-2025-0028",
     title: "Political Network Analysis - Adewale E.",
     description:
       "Mapping political connections and influence networks for high-profile individual. Investigation completed with comprehensive report delivered to client.",
@@ -235,7 +235,7 @@ export const mockInvestigations: Investigation[] = [
   },
   {
     id: "inv-006",
-    caseNumber: "INV-2025-0022",
+    caseNumber: "CASE-2025-0022",
     title: "Oil & Gas Subsidy Fraud Ring",
     description:
       "Investigation into suspected petroleum subsidy fraud involving multiple downstream companies. Closed due to insufficient evidence after document subpoena was denied.",

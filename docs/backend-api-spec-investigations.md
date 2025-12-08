@@ -49,7 +49,7 @@ Authorization: Bearer <token>
 ```typescript
 interface Investigation {
   id: string;                        // UUID, primary key
-  caseNumber: string;                // Auto-generated, format: "INV-YYYY-NNNN"
+  caseNumber: string;                // Auto-generated, format: "CASE-YYYY-NNNN"
   title: string;                     // Required, max 200 chars
   description: string;               // Required, max 5000 chars
   status: InvestigationStatus;       // Enum: 'draft' | 'active' | 'on-hold' | 'closed'
@@ -183,7 +183,7 @@ Returns paginated list of investigations with optional filters.
   "investigations": [
     {
       "id": "uuid",
-      "caseNumber": "INV-2025-0042",
+      "caseNumber": "CASE-2025-0042",
       "title": "Apex Global Ventures - Financial Irregularities",
       "description": "Investigation into suspected fraudulent transactions...",
       "status": "active",
@@ -222,7 +222,7 @@ Returns full investigation with notes, entities, and timeline.
 ```json
 {
   "id": "uuid",
-  "caseNumber": "INV-2025-0042",
+  "caseNumber": "CASE-2025-0042",
   "title": "Apex Global Ventures - Financial Irregularities",
   "description": "...",
   "status": "active",
@@ -310,7 +310,7 @@ Returns full investigation with notes, entities, and timeline.
 
 Returns the created `Investigation` object with:
 - Auto-generated `id` (UUID)
-- Auto-generated `caseNumber` (format: `INV-YYYY-NNNN`)
+- Auto-generated `caseNumber` (format: `CASE-YYYY-NNNN`)
 - `createdAt` and `updatedAt` set to current timestamp
 - `createdBy` set to authenticated user
 - `assigneeId` set to authenticated user
@@ -652,7 +652,7 @@ CREATE SEQUENCE investigation_case_number_seq START 1;
 CREATE OR REPLACE FUNCTION generate_case_number()
 RETURNS VARCHAR(20) AS $$
 BEGIN
-  RETURN 'INV-' || EXTRACT(YEAR FROM NOW())::TEXT || '-' || 
+  RETURN 'CASE-' || EXTRACT(YEAR FROM NOW())::TEXT || '-' || 
          LPAD(nextval('investigation_case_number_seq')::TEXT, 4, '0');
 END;
 $$ LANGUAGE plpgsql;
@@ -699,7 +699,7 @@ CREATE TRIGGER trigger_update_notes_updated_at
 
 ### 1. Case Number Generation
 
-- Format: `INV-{YEAR}-{NNNN}` (e.g., `INV-2025-0042`)
+- Format: `CASE-{YEAR}-{NNNN}` (e.g., `CASE-2025-0042`)
 - Use database sequence to ensure uniqueness
 - Consider resetting sequence yearly or using continuous numbering
 

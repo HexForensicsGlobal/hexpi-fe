@@ -169,7 +169,7 @@ export type InvestigationTimelineEventType =
 export interface Investigation {
   /** Unique identifier (UUID) */
   id: string;
-  /** Case reference number for display (e.g., "INV-2025-0042") */
+  /** Case reference number for display (e.g., "CASE-2025-0042") */
   caseNumber: string;
   /** Investigation title */
   title: string;
