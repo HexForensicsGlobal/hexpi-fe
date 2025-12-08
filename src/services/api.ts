@@ -3,14 +3,68 @@ import type {
   SearchParams,
   SearchResponse,
   HealthResponse,
+  Investigation,
+  InvestigationDetail,
+  InvestigationListParams,
+  InvestigationListResponse,
+  InvestigationNote,
+  InvestigationEntity,
+  CreateInvestigationPayload,
+  UpdateInvestigationPayload,
+  CreateInvestigationNotePayload,
+  UpdateInvestigationNotePayload,
+  LinkEntityPayload,
+  OrganizationResult,
+  AffiliateResult,
 } from './types';
 
-// API Service Interface
+// Import mock services for investigation (backend not yet available)
+import {
+  mockGetInvestigations,
+  mockGetInvestigation,
+  mockCreateInvestigation,
+  mockUpdateInvestigation,
+  mockDeleteInvestigation,
+  mockAddNote,
+  mockUpdateNote,
+  mockDeleteNote,
+  mockLinkEntity,
+  mockUnlinkEntity,
+} from './investigation/mockInvestigationData';
+
+// =============================================================================
+// API SERVICE INTERFACE
+// =============================================================================
+
 export interface IApiService {
+  // Health checks
   health(): Promise<HealthResponse>;
   searchHealth(): Promise<HealthResponse>;
+  
+  // Search
   keywordSearch(params: SearchParams, signal?: AbortSignal): Promise<SearchResponse>;
+
+  // Investigation/Case Management
+  getInvestigations(params?: InvestigationListParams, signal?: AbortSignal): Promise<InvestigationListResponse>;
+  getInvestigation(id: string, signal?: AbortSignal): Promise<InvestigationDetail | null>;
+  createInvestigation(payload: CreateInvestigationPayload): Promise<Investigation>;
+  updateInvestigation(id: string, payload: UpdateInvestigationPayload): Promise<Investigation | null>;
+  deleteInvestigation(id: string): Promise<boolean>;
+  
+  // Investigation Notes
+  addInvestigationNote(investigationId: string, payload: CreateInvestigationNotePayload): Promise<InvestigationNote | null>;
+  updateInvestigationNote(investigationId: string, noteId: string, payload: UpdateInvestigationNotePayload): Promise<InvestigationNote | null>;
+  deleteInvestigationNote(investigationId: string, noteId: string): Promise<boolean>;
+  
+  // Investigation Entities
+  linkEntityToInvestigation(
+    investigationId: string,
+    payload: LinkEntityPayload,
+    entitySnapshot: OrganizationResult | AffiliateResult
+  ): Promise<InvestigationEntity | null>;
+  unlinkEntityFromInvestigation(investigationId: string, entityId: string): Promise<boolean>;
 }
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -43,9 +97,19 @@ apiClient.interceptors.response.use(
   }
 );
 
-// API Service Implementation
+// =============================================================================
+// API SERVICE IMPLEMENTATION
+// =============================================================================
+
+// Flag to use mock data for investigations (backend not yet available)
+const USE_MOCK_INVESTIGATIONS = true;
+
 class ApiService implements IApiService {
   private client = apiClient;
+
+  // ===========================================================================
+  // HEALTH CHECKS
+  // ===========================================================================
 
   async health(): Promise<HealthResponse> {
     const response = await this.client.get<HealthResponse>('/health');
@@ -56,6 +120,10 @@ class ApiService implements IApiService {
     const response = await this.client.get<HealthResponse>('/api/v1/search/health');
     return response.data;
   }
+
+  // ===========================================================================
+  // SEARCH
+  // ===========================================================================
 
   async keywordSearch(params: SearchParams, signal?: AbortSignal): Promise<SearchResponse> {
     const response = await this.client.get<SearchResponse>('/api/v1/search/keyword', {
@@ -69,6 +137,198 @@ class ApiService implements IApiService {
       },
     });
     return response.data;
+  }
+
+  // ===========================================================================
+  // INVESTIGATIONS - CRUD
+  // ===========================================================================
+
+  async getInvestigations(
+    params?: InvestigationListParams,
+    signal?: AbortSignal
+  ): Promise<InvestigationListResponse> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockGetInvestigations(params);
+    }
+
+    const response = await this.client.get<InvestigationListResponse>('/api/v1/investigations', {
+      signal,
+      params,
+    });
+    return response.data;
+  }
+
+  async getInvestigation(id: string, signal?: AbortSignal): Promise<InvestigationDetail | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockGetInvestigation(id);
+    }
+
+    try {
+      const response = await this.client.get<InvestigationDetail>(`/api/v1/investigations/${id}`, {
+        signal,
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async createInvestigation(payload: CreateInvestigationPayload): Promise<Investigation> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockCreateInvestigation(payload);
+    }
+
+    const response = await this.client.post<Investigation>('/api/v1/investigations', payload);
+    return response.data;
+  }
+
+  async updateInvestigation(
+    id: string,
+    payload: UpdateInvestigationPayload
+  ): Promise<Investigation | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockUpdateInvestigation(id, payload);
+    }
+
+    try {
+      const response = await this.client.patch<Investigation>(
+        `/api/v1/investigations/${id}`,
+        payload
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async deleteInvestigation(id: string): Promise<boolean> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockDeleteInvestigation(id);
+    }
+
+    try {
+      await this.client.delete(`/api/v1/investigations/${id}`);
+      return true;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return false;
+      }
+      throw error;
+    }
+  }
+
+  // ===========================================================================
+  // INVESTIGATION NOTES
+  // ===========================================================================
+
+  async addInvestigationNote(
+    investigationId: string,
+    payload: CreateInvestigationNotePayload
+  ): Promise<InvestigationNote | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockAddNote(investigationId, payload);
+    }
+
+    try {
+      const response = await this.client.post<InvestigationNote>(
+        `/api/v1/investigations/${investigationId}/notes`,
+        payload
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async updateInvestigationNote(
+    investigationId: string,
+    noteId: string,
+    payload: UpdateInvestigationNotePayload
+  ): Promise<InvestigationNote | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockUpdateNote(investigationId, noteId, payload);
+    }
+
+    try {
+      const response = await this.client.patch<InvestigationNote>(
+        `/api/v1/investigations/${investigationId}/notes/${noteId}`,
+        payload
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async deleteInvestigationNote(investigationId: string, noteId: string): Promise<boolean> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockDeleteNote(investigationId, noteId);
+    }
+
+    try {
+      await this.client.delete(`/api/v1/investigations/${investigationId}/notes/${noteId}`);
+      return true;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return false;
+      }
+      throw error;
+    }
+  }
+
+  // ===========================================================================
+  // INVESTIGATION ENTITIES
+  // ===========================================================================
+
+  async linkEntityToInvestigation(
+    investigationId: string,
+    payload: LinkEntityPayload,
+    entitySnapshot: OrganizationResult | AffiliateResult
+  ): Promise<InvestigationEntity | null> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockLinkEntity(investigationId, payload, entitySnapshot);
+    }
+
+    try {
+      const response = await this.client.post<InvestigationEntity>(
+        `/api/v1/investigations/${investigationId}/entities`,
+        { ...payload, entitySnapshot }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async unlinkEntityFromInvestigation(investigationId: string, entityId: string): Promise<boolean> {
+    if (USE_MOCK_INVESTIGATIONS) {
+      return mockUnlinkEntity(investigationId, entityId);
+    }
+
+    try {
+      await this.client.delete(`/api/v1/investigations/${investigationId}/entities/${entityId}`);
+      return true;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return false;
+      }
+      throw error;
+    }
   }
 }
 
