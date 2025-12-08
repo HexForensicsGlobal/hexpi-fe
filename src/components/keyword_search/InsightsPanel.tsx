@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo, useState, useEffect, useLayoutEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/accordion";
 import {
   BookmarkPlus,
-  ChevronLeft,
-  ChevronRight,
   Download,
   Filter,
   Lightbulb,
@@ -21,32 +19,26 @@ import {
 } from "lucide-react";
 import type { SearchResponse } from "@/services/types";
 
+interface CanvasBounds {
+  top: number;
+  right: number;
+  height: number;
+}
+
 interface InsightsPanelProps {
   results: SearchResponse | null;
   query: string;
+  isCollapsed: boolean;
+  onToggle: () => void;
   onFilterClick?: (filter: string) => void;
   onRelatedSearchClick?: (term: string) => void;
 }
-
-const STORAGE_KEY = "hexpi-insights-panel-collapsed";
 
 /**
  * Collapsible right-side panel showing search insights,
  * data quality indicators, related searches, and quick actions.
  */
-const InsightsPanel = ({ results, query, onFilterClick, onRelatedSearchClick }: InsightsPanelProps) => {
-  // Load initial state from localStorage
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === "true";
-  });
-
-  // Persist collapse state
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, String(isCollapsed));
-  }, [isCollapsed]);
-
+const InsightsPanel = ({ results, query, isCollapsed, onToggle, onFilterClick, onRelatedSearchClick }: InsightsPanelProps) => {
   // Generate insights based on results
   const insights = useMemo(() => {
     if (!results) return null;
@@ -116,34 +108,53 @@ const InsightsPanel = ({ results, query, onFilterClick, onRelatedSearchClick }: 
   // Don't render if no results
   if (!results || !insights) return null;
 
+  // Track canvas bounds for positioning
+  const [canvasBounds, setCanvasBounds] = useState<CanvasBounds>({ top: 0, right: 8, height: window.innerHeight });
+
+  useLayoutEffect(() => {
+    const updateBounds = () => {
+      const canvas = document.getElementById("canvas");
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        
+        setCanvasBounds({
+          top: rect.top,
+          right: 8, // Account for main's margin
+          height: rect.height,
+        });
+      }
+    };
+
+    updateBounds();
+    window.addEventListener("resize", updateBounds);
+    
+    // Also observe the canvas for size changes
+    const canvas = document.getElementById("canvas");
+    const resizeObserver = new ResizeObserver(updateBounds);
+    if (canvas) resizeObserver.observe(canvas);
+
+    return () => {
+      window.removeEventListener("resize", updateBounds);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   return (
     <>
-      {/* Collapse/Expand Toggle Button - positioned relative to canvas */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`absolute right-0 top-1/2 -translate-y-1/2 z-40 h-12 rounded-l-xl rounded-r-none border border-r-0 border-white/10 bg-background/80 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 ${
-          isCollapsed ? "translate-x-0" : "translate-x-80"
-        }`}
-        aria-label={isCollapsed ? "Open insights panel" : "Close insights panel"}
-      >
-        {isCollapsed ? (
-          <ChevronLeft className="h-4 w-4" />
-        ) : (
-          <ChevronRight className="h-4 w-4" />
-        )}
-      </Button>
-
-      {/* Panel - absolute positioned within canvas */}
+      {/* Panel - fixed positioned within the canvas area */}
       <div
-        className={`absolute right-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${
+        className={`fixed z-50 transition-transform duration-300 ease-in-out ${
           isCollapsed ? "translate-x-full" : "translate-x-0"
         }`}
+        style={{
+          top: canvasBounds.top,
+          right: canvasBounds.right,
+          height: canvasBounds.height,
+        }}
       >
-        <div className="h-full w-80 border-l border-white/10 bg-background/95 backdrop-blur-xl overflow-y-auto">
+        <div className="h-full w-80 border-l border-white/10 overflow-y-auto backdrop-blur-sm bg-sidebar/90 rounded-r-2xl">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-white/10 p-4">
+          <div className="sticky top-0 z-10 backdrop-blur-xl border-b border-white/10 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-primary" />
@@ -152,7 +163,7 @@ const InsightsPanel = ({ results, query, onFilterClick, onRelatedSearchClick }: 
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsCollapsed(true)}
+                onClick={onToggle}
                 className="h-8 w-8 text-foreground/50 hover:text-foreground"
               >
                 <X className="h-4 w-4" />
@@ -381,8 +392,8 @@ const InsightsPanel = ({ results, query, onFilterClick, onRelatedSearchClick }: 
       {/* Overlay for mobile */}
       {!isCollapsed && (
         <div
-          className="absolute inset-0 bg-black/50 z-20 lg:hidden"
-          onClick={() => setIsCollapsed(true)}
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          onClick={onToggle}
         />
       )}
     </>

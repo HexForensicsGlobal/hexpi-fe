@@ -3,6 +3,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import SearchResults from "./SearchResults";
 import SearchForm, { type SearchFormData } from "./SearchForm";
 import InsightsPanel from "./InsightsPanel";
+import SearchTopNav from "./SearchTopNav";
 import api from "@/services/api";
 import type { SearchParams } from "@/services/types";
 import { useSearchStore } from "@/stores/searchStore";
@@ -21,7 +22,18 @@ const KeywordSearchHome = () => {
   const prefill = (state as PrefillState | null)?.prefill;
 
   // Global state from Zustand
-  const { status, results, lastQuery, errorMessage, setStatus, setError, setResults } = useSearchStore();
+  const { 
+    status, 
+    results, 
+    lastQuery, 
+    errorMessage, 
+    setStatus, 
+    setError, 
+    setResults, 
+    clearResults,
+    isInsightsPanelOpen,
+    toggleInsightsPanel,
+  } = useSearchStore();
   
   const inflightRequest = useRef<AbortController | null>(null);
   const hasInitialized = useRef(false);
@@ -148,8 +160,27 @@ const KeywordSearchHome = () => {
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col text-foreground relative">
+    <div className="flex-1 flex flex-col text-foreground relative overflow-x-hidden">
       
+      {/* Top Navigation - only visible when there are results */}
+      {results && (
+        <SearchTopNav
+          hasResults={!!results}
+          isInsightsPanelOpen={isInsightsPanelOpen}
+          onToggleInsightsPanel={toggleInsightsPanel}
+          onClearSearch={() => {
+            clearResults();
+            setSearchParams({}, { replace: true });
+          }}
+          totalResults={
+            results.organizations.length +
+            results.affiliates.length +
+            results.related_organizations.length +
+            results.related_affiliates.length
+          }
+        />
+      )}
+
       {/* Main Content */}
       <div className={`flex-1 px-6 md:px-12 py-8 ${!results ? 'flex flex-col items-center justify-center' : ''}`}>
         {/* Hero Search Section - centered when no results */}
@@ -187,7 +218,7 @@ const KeywordSearchHome = () => {
 
         {/* Results Section - appears below search */}
         {results && (
-          <div className="max-w-6xl mx-auto w-full lg:pr-16">
+          <div className="max-w-6xl mx-auto w-full">
             <SearchResults status={status} lastQuery={lastQuery} results={results} />
           </div>
         )}
@@ -198,6 +229,8 @@ const KeywordSearchHome = () => {
         <InsightsPanel
           results={results}
           query={lastQuery?.query ?? ""}
+          isCollapsed={!isInsightsPanelOpen}
+          onToggle={toggleInsightsPanel}
           onRelatedSearchClick={handleRelatedSearch}
         />
       )}

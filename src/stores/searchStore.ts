@@ -14,12 +14,17 @@ export interface SearchState {
   // Search query and results
   lastQuery: SearchQuery | null;
   results: SearchResponse | null;
+
+  // UI state
+  isInsightsPanelOpen: boolean;
   
   // Actions
   setStatus: (status: SearchState["status"]) => void;
   setError: (message: string | null) => void;
   setResults: (results: SearchResponse | null, query: SearchQuery) => void;
   clearResults: () => void;
+  toggleInsightsPanel: () => void;
+  setInsightsPanelOpen: (open: boolean) => void;
   reset: () => void;
 }
 
@@ -28,6 +33,7 @@ const initialState = {
   errorMessage: null,
   lastQuery: null,
   results: null,
+  isInsightsPanelOpen: true,
 };
 
 export const useSearchStore = create<SearchState>((set) => ({
@@ -51,6 +57,12 @@ export const useSearchStore = create<SearchState>((set) => ({
       lastQuery: null,
       status: "idle",
     }),
+
+  toggleInsightsPanel: () =>
+    set((state) => ({ isInsightsPanelOpen: !state.isInsightsPanelOpen })),
+
+  setInsightsPanelOpen: (open) =>
+    set({ isInsightsPanelOpen: open }),
 
   reset: () => set(initialState),
 }));
