@@ -1,4 +1,4 @@
-import { Sparkles, MessageSquare, Home, UserSearch, Wand, FileText } from "lucide-react";
+import { Sparkles, MessageSquare, Home, UserSearch, Wand, FileText, Briefcase } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +23,7 @@ export function AppSidebar() {
   
   const navigationTabs = [
     { id: "dashboard", title: "Dashboard", path: "/app", icon: Home },
+    { id: "investigations", title: "Investigations", path: "/app/investigations", icon: Briefcase },
     { id: "keyword", title: "Search", path: "/app/keyword-search", icon: UserSearch },
     { id: "ai", title: "AI Discovery", path: "/app/ai-search", icon: Sparkles },
     { id: "reports", title: "Reports", path: "/app/reports", icon: FileText },

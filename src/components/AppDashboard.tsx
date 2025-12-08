@@ -14,6 +14,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const summaryCards = [
   {
@@ -82,6 +83,8 @@ const activity = [
 ];
 
 const AppDashboard = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="flex-1 px-16 py-10 text-foreground">
       <div className="flex flex-wrap items-start justify-between gap-6">
@@ -98,7 +101,7 @@ const AppDashboard = () => {
           <Button variant="outline" className="border-white/20">
             Download report
           </Button>
-          <Button>
+          <Button onClick={() => navigate("/app/investigations?action=new")}>
             Start new case
           </Button>
         </div>

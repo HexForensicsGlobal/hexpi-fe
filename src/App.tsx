@@ -9,6 +9,7 @@ import Reports from "./components/Reports";
 import KeywordSearchHome from "@/components/keyword_search/KeywordSearchHome";
 import AppDashboard from "@/components/AppDashboard";
 import { AISearchHome } from "@/components/ai_search/AISearchHome";
+import { InvestigationsHome, InvestigationDetail } from "@/components/investigations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,8 @@ const App = () => (
             <Route path="ai-search" element={<AISearchHome />} />
             <Route path="keyword-search" element={<KeywordSearchHome />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="investigations" element={<InvestigationsHome />} />
+            <Route path="investigations/:id" element={<InvestigationDetail />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
